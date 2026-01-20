@@ -1,22 +1,28 @@
 % set to zero to use the same example and experiment with 
-% the homotopy part only
+% test of the homotopy method for linear RMEPs using a random RMEP
+
+% set to zero to use the same example and experiment with the homotopy part only
 constructAB = 1;
 
 if constructAB
-    n = 4;
-    k = 5;
-    rng(1);
+    % construction of the random RMEP and of the initial RMEP
+    n = 10;  % number of columns
+    k = 4;  % number of parameters
+    rng(1); % comment to have different examples
     
+    % matrices of a random linear RMEP
     A = cell(1,k+1);
     for j = 1:k+1
         A{j} = randn(n+k-1,n);
     end
     
+    % construct the initial problem of the same size with known solutions
     tic
     [B,Lambda0,X0] = initial_rmep(n,k);
     t2 = toc;
 end
 
+% check if the solutions of the initial problem are simple and all residuals are zero
 lambda02 = remove_duplicates(Lambda0);
 nNu = size(Lambda0,1);
 disp(['Construction of the initial rmep with ',num2str(nNu),' solutions, ',num2str(length(lambda02)),' distinct : ', num2str(t2), ' s'])
@@ -35,6 +41,7 @@ end
 maxres0 = max(resT0);
 disp(['Maximal norm of the initial residual: ',num2str(maxres0)])
 
+% options for the homotopy solver
 opts = [];
 opts.display = 1;
 
@@ -62,7 +69,9 @@ for j = 1:length(yn)
 end
 
 maxres = max(resT);
+% change eigenvalues back from homogeneous ones
 lambdaN = lambdaT(:,2:end)./lambdaT(:,1);
+% check if the eigenvalues are distinct
 lambdaT2 = remove_duplicates(lambdaN);
 disp(['Homotopy solver required ', num2str(tTrace+t2), 's to find ',num2str(length(lambdaT2)),'  distinct eigenvalues. Maximal norm of the residual: ',num2str(maxres)])
 

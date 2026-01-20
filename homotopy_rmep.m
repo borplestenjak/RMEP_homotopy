@@ -4,8 +4,8 @@ function [lambda,X,tcell,ycell,stat] = homotopy_rmep(A,B,Lambda0,X0,opts)
 % problem using homotopy
 %
 % [lambda,X,tn,yn,stat] = homotopy_rmep(A,B,Lambda0,X0,opts) returns 
-% eigenvalues and eigenvectors of a rectangular multiparameter eigenvalue 
-% problem (RMEP)
+% homogeneous eigenvalues and eigenvectors of a rectangular multiparameter 
+% eigenvalue problem (RMEP)
 %
 % (A{1} + lambda(1) A{2} x + ... + lambda(k) A{k+1}) x = 0 
 %
@@ -18,7 +18,7 @@ function [lambda,X,tcell,ycell,stat] = homotopy_rmep(A,B,Lambda0,X0,opts)
 % Input:
 %   - A,B : cell array of size k+1 of matrices, all matrices have to be 
 %         rectangular matrices of the same size (n+k-1) x n
-%   - Lambda0: rows are eigenvalues of the RMEP B (matrix of size m x k),
+%   - Lambda0: rows are eigenvalues of the RMEP B (matrix of size m x (k+1)),
 %         where m = nchoosek(n+k-1,k)
 %   - X0: columns are eigenvectors of the RMEP B (matrix of size n x m)
 %   - opts : options 
@@ -37,7 +37,7 @@ function [lambda,X,tcell,ycell,stat] = homotopy_rmep(A,B,Lambda0,X0,opts)
 %   - abort_stepsize (1e-20): tolerance to abort path following if the stepsize becomes to small
 %
 % Output:
-%   - lambda : matrix m x k, each row is an eigenvalue
+%   - lambda : matrix m x (k+1), each row is a homogeneous eigenvalue
 %   - X : matrix n x m with right eigenvectors
 %   - tcell: cell with all time steps 
 %   - ycell: cell with all intermediate steps, first n elements represent eigenvector,
@@ -62,10 +62,10 @@ if isfield(opts,'abort_stepsize'), abort_stepsize = opts.abort_stepsize;     els
 
 kpar = length(A) - 1;
 [m,n] = size(A{1});
-neig = size(Lambda0,1); % number of curves to follow
+neig = size(Lambda0,1); % number of paths to follow
 tcell = cell(1,neig);
 ycell = cell(1,neig);
-indices = 1:neig; % indices of curves that we have to follow
+indices = 1:neig; % indices of paths that we have to follow
 
 stat = [];
 stat.fail = 0;
@@ -113,7 +113,7 @@ while run<maxruns && sum(converged)<neig
                 for j = 1:kpar+1
                     C{j} = (1-t)*B{j} + t*A{j}; 
                     W = W + y(n+j)*C{j};
-                    Wt = Wt + y(n+j)*(A{j} - B{j}); % + (1-2*t)*P{1});
+                    Wt = Wt + y(n+j)*(A{j} - B{j}); 
                 end
             
                 Ma0(1:m,1:n) = W; 
@@ -132,11 +132,11 @@ while run<maxruns && sum(converged)<neig
                 corrector_tol = tol;
                 while noconv && (abort_path==0)
             
-                    % compute predictor
+                    % compute predictor by Euler's method
                     yp = y + h*tang;
                     tp = t + h;
+
                     % compute corrector by Newton's method
-                    
                     % initial residual
                     W = 0;
                     for j = 1:kpar+1

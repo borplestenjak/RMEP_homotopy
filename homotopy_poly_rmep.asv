@@ -47,7 +47,7 @@ function [lambda,X,tcell,ycell,stat] = homotopy_poly_rmep(A,suppA_r,B,suppB_r,La
 %         last k+2 elements represent eigenvalue
 %   - stat: several statistics
 
-% Bor Plestenjak, 2026
+% Bor Plestenjak, 2025, 2026
 
 if nargin < 7, opts = []; end
 
@@ -65,10 +65,10 @@ if isfield(opts,'abort_stepsize'), abort_stepsize = opts.abort_stepsize;     els
 
 kpar = size(suppA_r,2);
 [m,n] = size(A{1});
-neig = size(Lambda0,1); % number of paths to follow
+neig = size(Lambda0,1); % number of curves to follow
 tcell = cell(1,neig);
 ycell = cell(1,neig);
-indices = 1:neig; % indices of paths that we have to follow
+indices = 1:neig; % indices of curves that we have to follow
 
 n_cellA = length(A);
 n_cellB = length(B);
@@ -83,7 +83,7 @@ minh = ones(1,neig);
 run = 0;
 
 deg = max(sum(suppA_r,2)); % degree of the RMEP
-% homogeneous representations of RMEPS A(lambda) and B(lambda)
+% homogeneous representations of RMEPS A and B
 suppA = [deg-sum(suppA_r,2) suppA_r];
 suppB = [deg-sum(suppB_r,2) suppB_r];
 
@@ -122,9 +122,12 @@ while run<maxruns && sum(converged)<neig
                     tol = finaltol;
                 end
 
+%                W = (1-t)*evalmon(coefB,suppB,y(n+1:end)) + t*evalmon(coefA,suppA,y(n+1:end));
+%                Wt = evalmon(coefA,suppA,y(n+1:end)) - evalmon(coefB,suppB,y(n+1:end));
                 Aval = eval_rmep(A,suppA,y(n+1:end),Z0);
                 Bval = eval_rmep(B,suppB,y(n+1:end),Z0);
-                W = (1-t)*Bval + t*Aval;  
+
+                W = (1-t)*Bval + t*Aval;
                 Wt = Aval - Bval;
             
                 Ma0(1:m,1:n) = W; 
@@ -134,6 +137,10 @@ while run<maxruns && sum(converged)<neig
                 for j = 1:n_cellB
                     Cb(:,j) = B{j}*y(1:n);
                 end
+%                 for j = 1:kpar+1
+% %                    Ma0(1:m,n+j) = ((1-t)*eval_mon_der(coefB,suppB,y(n+1:end),j) + t*evalmon_der(coefA,suppA,y(n+1:end),j))*y(1:n);
+%                     Ma0(1:m,n+j) = (1-t)*eval_rmep_der(Cb,suppB,y(n+1:end),j) + t*eval_rmep_der(Ca,suppA,y(n+1:end),j);
+%                 end
                 Ma0(1:m,n+1:end) = (1-t)*eval_rmep_der(Cb,suppB,y(n+1:end),Z1b) + t*eval_rmep_der(Ca,suppA,y(n+1:end),Z1a);
                 Ma0(m+1,1:n) = 2*y(1:n)';
                 Ma0(m+2,n+1:end) = 2*y(n+1:end)';
@@ -147,12 +154,13 @@ while run<maxruns && sum(converged)<neig
                 corrector_tol = tol;
                 while noconv && (abort_path==0)
             
-                    % compute predictor ny Euler's method
+                    % compute predictor
                     yp = y + h*tang;
                     tp = t + h;
-
                     % compute corrector by Newton's method
+                    
                     % initial residual
+%                   W = (1-tp)*evalmon(coefB,suppB,yp(n+1:end)) + tp*evalmon(coefA,suppA,yp(n+1:end));
                     W = (1-tp)*eval_rmep(B,suppB,yp(n+1:end),Z0) + tp*eval_rmep(A,suppA,yp(n+1:end),Z0);
                     rhs = [W*yp(1:n); yp(1:n)'*yp(1:n)-1; yp(n+1:end)'*yp(n+1:end)-1];
                     innerstep = 0;
@@ -167,6 +175,11 @@ while run<maxruns && sum(converged)<neig
                         for j = 1:n_cellB
                             Cb(:,j) = B{j}*yp(1:n);
                         end
+%                         for j = 1:kpar+1
+% %                            Ma(1:m,n+j) = ((1-tp)*evalmon_der(coefB,suppB,yp(n+1:end),j) + tp*evalmon_der(coefA,suppA,yp(n+1:end),j))*yp(1:n);
+% %                            Ma(1:m,n+j) = ((1-tp)*eval_rmep_der(B,suppB,yp(n+1:end),j,Z0) + tp*eval_rmep_der(A,suppA,yp(n+1:end),j,Z0))*yp(1:n);
+%                             Ma(1:m,n+j) = (1-tp)*eval_rmep_der(Cb,suppB,yp(n+1:end),j) + tp*eval_rmep_der(Ca,suppA,yp(n+1:end),j);
+%                         end
                         Ma(1:m,n+1:end) = (1-tp)*eval_rmep_der(Cb,suppB,yp(n+1:end),Z1b) + tp*eval_rmep_der(Ca,suppA,yp(n+1:end),Z1a);
                         Ma(m+1,1:n) = 2*yp(1:n)';
                         Ma(m+2,n+1:end) = 2*yp(n+1:end)';
@@ -174,6 +187,7 @@ while run<maxruns && sum(converged)<neig
                         dx = -Ma\rhs;
                         warning on
                         yp = yp + dx; 
+%                        W = (1-tp)*evalmon(coefB,suppB,yp(n+1:end)) + tp*evalmon(coefA,suppA,yp(n+1:end));
                         W = (1-tp)*eval_rmep(B,suppB,yp(n+1:end),Z0) + tp*eval_rmep(A,suppA,yp(n+1:end),Z0);
                         rhs = [W*yp(1:n); yp(1:n)'*yp(1:n)-1; yp(n+1:end)'*yp(n+1:end)-1];
                     end
@@ -242,3 +256,5 @@ while run<maxruns && sum(converged)<neig
         maxinnersteps = max(maxinnersteps-1,4);
     end
 end
+
+
