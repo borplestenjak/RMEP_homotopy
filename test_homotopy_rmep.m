@@ -6,8 +6,8 @@ constructAB = 1;
 
 if constructAB
     % construction of the random RMEP and of the initial RMEP
-    n = 10;  % number of columns
-    k = 4;  % number of parameters
+    n = 15;  % number of columns
+    k = 3;  % number of parameters
     rng(1); % comment to have different examples
     
     % matrices of a random linear RMEP
@@ -43,13 +43,16 @@ disp(['Maximal norm of the initial residual: ',num2str(maxres0)])
 
 % options for the homotopy solver
 opts = [];
-opts.display = 1;
+opts.display = 2;
+%opts.stepsize = 1e-10;
+opts.maxangle = 2.5e-1;
+opts.maxstepsize = 2.5e-1;
 
-if nNu > 4000
-    % different parameters when there are many solutions
-    opts.innertol = 1e-11;
-    opts.maxstepsize = 1e-2;
-end
+%if nNu > 4000
+%    % different parameters when there are many solutions
+%    opts.innertol = 1e-11;
+%    opts.maxstepsize = 1e-2;
+%end
 
 tic
 [lambdaT, XT, tn, yn, stat] = homotopy_rmep(A,B,Lambda0,X0,opts);
