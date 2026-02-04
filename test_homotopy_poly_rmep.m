@@ -1,65 +1,68 @@
-% set to zero to use the same example and experiment with 
-% the homotopy part only
-constructAB = 1;
+% Solve a random polynomial RMEP using homotopy
 
-if constructAB
-    n = 5; % number of columns
-    k = 4;  % number of parameters
-    deg = 2;  % degree
-    
-    % random full polynomial RMEP
-    suppA = monomialsmatrix(deg,k);
-    nA = size(suppA,1);
+% Change the folowing parameters 
+% ---------------------------------------------------------------------
+n = 5;    % number of columns in matrices A
+k = 3;    % number of parameters
+deg = 3;  % degree of the polynomial RMEP
+rg1 = 1;  % random generator for the construction of A
+rg2 = 2;  % random generator for the construction of the initial problem B
 
-    rng(1);
-    A = cell(1,nA);
-    for j = 1:nA
-        A{j} = randn(n+k-1,n);
-    end
-    
-    tic
-    [B,Lambda0,X0] = initial_poly_rmep(n,k,deg*ones(1,k));
-    suppB = [zeros(1,k); deg*eye(k)];
-    t2 = toc;
-    m = n + k - 1;
+% Options for the homotopy_poly_rmep
+opts = [];
+opts.display = 1;
+opts.maxruns = 3;
+
+% Do not change the part below
+% ---------------------------------------------------------------------
+
+% Random full polynomial RMEP
+suppA = monomialsmatrix(deg,k);
+nA = size(suppA,1);
+
+rng(rg1);
+A = cell(1,nA);
+for j = 1:nA
+    A{j} = randn(n+k-1,n);
 end
+    
+% Construction of the initial problem
+tic
+rng(rg2)
+[B,Lambda0,X0] = initial_poly_rmep(n,k,deg*ones(1,k));
+suppB = [zeros(1,k); deg*eye(k)];
+t2 = toc;
+m = n + k - 1;
 
-lambda02 = remove_duplicates(Lambda0);
 nNu = size(Lambda0,1);
-disp(['Construction of the initial rmep with ',num2str(nNu),' solutions, ',num2str(length(lambda02)),' distinct : ', num2str(t2), ' s'])
+disp(['Construction of the initial rmep with ',num2str(nNu),' solutions: ', num2str(t2), ' s'])
 tn = cell(1,nNu);
 yn = cell(1,nNu);
 Z0 = zeros(m,n);
 
 lambdaT = [];
 resT0 = [];
-for j = 1:nNu
-    W = eval_rmep(B,suppB,lambda02(j,:),Z0);
+for j = 1:nNu 
+    W = eval_rmep(B,suppB,Lambda0(j,:),Z0);
     resT0(j,1) = norm(W*X0(:,j));
 end
 maxres0 = max(resT0);
 disp(['Maximal norm of the initial residual: ',num2str(maxres0)])
 
-opts = [];
-opts.display = 1;
-
+% Homotopy method for PRMEP
 tic
 [lambdaT, XT, tn, yn, stat] = homotopy_poly_rmep(A,suppA,B,suppB,Lambda0,X0,opts);
 tTrace = toc;
 steps = cellfun(@numel, tn);
-
+lambda = lambdaT(:,2:end)./lambdaT(:,1); % conversion to affine eigenvalues
 fprintf('Homotopy finished with an average of %d steps (max: %d, min %d) in %f s \n',round(mean(steps)),max(steps),min(steps),tTrace)
-
-% homogeneous representations of A
-homosuppA = [deg-sum(suppA,2) suppA];
 
 resT = [];
 for j = 1:length(yn)
-    W = eval_rmep(A,homosuppA,lambdaT(j,:),Z0);
+    W = eval_rmep(A,suppA,lambda(j,:),Z0);
     resT(j,1) = norm(W*XT(:,j));
 end
 
 maxres = max(resT);
-lambdaN = lambdaT(:,2:end)./lambdaT(:,1);
-lambdaT2 = remove_duplicates(lambdaN);
-disp(['Homotopy solver required ', num2str(tTrace+t2), 's to find ',num2str(length(lambdaT2)),'  distinct eigenvalues. Maximal norm of the residual: ',num2str(maxres)])
+lambda2 = remove_duplicates(lambda);
+disp(['Homotopy solver required ', num2str(tTrace+t2), 's to find ',num2str(length(lambda2)),'  distinct eigenvalues. Maximal norm of the residual: ',num2str(maxres)])

@@ -15,10 +15,10 @@ n = size(A,1);
 m = size(A,2);
 for j = 1:n
     elem = A(j,:);
-    if min(vecnorm(A([1:j-1 j+1:end],:) - elem,2,2))/(1+norm(elem)) < tol
+    if min(vecnorm(double(A([1:j-1 j+1:end],:) - elem),2,2))/(1+norm(elem)) < tol
         A(j,:) = Inf*ones(1,m);
     end
 end
 
-pos = find(vecnorm(A,2,2)<Inf);
+pos = find(vecnorm(double(A),2,2)<Inf);
 B = A(pos,:);

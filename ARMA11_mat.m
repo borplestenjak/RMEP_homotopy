@@ -1,13 +1,11 @@
-function [M00,M10,M01,M02] = ARMA11_mat(y,class_t)
+function [M00,M10,M01,M02] = ARMA11_mat(y)
 
 % Returns matrices M00, M10, M01, M11 for the rectangular MEP
 %   (M00 + alfa1*M10 + gamma1*M01 + gamma1^2*M02) 
 % whose eigenvalues are stationary points of the objective function for the 
 % ARMA(1,1) model
  
-if nargin<2
-    class_t = 'double';
-end
+class_t = superiorfloat(y);
 
 N = length(y);
 R = diag(ones(N-2,1,class_t),1) + diag(ones(N-2,1,class_t),-1);
@@ -49,5 +47,3 @@ M02 = [
     0     zrow  zrow  zrow;
     0     zrow  zrow  zrow
     ];
-
-end

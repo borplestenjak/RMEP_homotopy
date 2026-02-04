@@ -1,8 +1,21 @@
-function [lambda,X] = rect_multipareig_macaulay(A)
+function [lambda,X] = rect_multipareig_macaulay(A,dend,opts)
+
+if nargin<2
+    dend = 30;
+end
+
+if nargin<3
+    opts = [];
+end
 
 k = size(A,2) - 1;
 Amep = mepstruct(A,1,k);
-lambda = macaulaylab(Amep); 
+if isempty(opts)
+    lambda = macaulaylab(Amep,dend); 
+else
+    lambda = macaulaylab(Amep,dend,opts); 
+end
+
 n = size(A{1},2);
 
 if nargout>1

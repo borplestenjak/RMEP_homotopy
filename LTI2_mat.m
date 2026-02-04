@@ -55,20 +55,3 @@ M20 = [Zc   Id     ZM    ZM
        0    Zr     Zr    Zr];
 
 M02 = M20;
-
-end
-
-function e = LTI2_err(y,alpha1,alpha2,class_t)
-
-    N = length(y);
-
-    tmp1 = [alpha2*eye(N-2,class_t) zeros(N-2,2,class_t)];
-    tmp2 = [zeros(N-2,1,class_t) alpha1*eye(N-2,class_t) zeros(N-2,1,class_t)];
-    tmp3 = [zeros(N-2,2,class_t) eye(N-2,class_t)];
-    TA = tmp1 + tmp2 + tmp3;
-    DC = TA*TA';
-
-    err = TA'*(DC\(TA*y));
-    e = norm(err)^2;
-
-end
