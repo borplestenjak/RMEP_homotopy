@@ -8,7 +8,7 @@ if nargin<3
     opts = [];
 end
 
-k = size(A,2) - 1;
+k = numel(A) - 1;
 Amep = mepstruct(A,1,k);
 if isempty(opts)
     lambda = macaulaylab(Amep,dend); 

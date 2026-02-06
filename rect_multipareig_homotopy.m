@@ -35,7 +35,7 @@ class_t = superiorfloat(A{:});
 
 if isfield(opts,'filter_res'),      filter_res = opts.filter_res;           else,  filter_res = sqrt(eps(class_t));            end
 
-k = size(A,2) - 1;
+k = numel(A) - 1;
 n = size(A{1},2);
 
 [B,Lambda0,X0] = initial_rmep(n,k);
@@ -51,9 +51,9 @@ if filter_res>0
     res = [];
     for j = 1:neig
         W = eval_rmep(A,suppA,lambdaN(j,:));
-        res(j,:) = norm(W*XT(:,j))/norm(W);
+        res(j,:) = norm(W*XT(:,j));
     end
-    ind = find(res<1e-8);
+    ind = find(res<filter_res);
 else
     ind = 1:length(neig);
 end
