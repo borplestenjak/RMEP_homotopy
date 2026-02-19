@@ -60,14 +60,22 @@ for j = 1:12
 end
 res_gm_cond_lambda2 = [res_gm_cond2 lambda2]
 
-% MacaulayLab returns 12 eigenvalues
+% MacaulayLab 
 fprintf("\nMacaulayLab using posdim=true \n---------------------------------\n")
-Amep = mepstruct(A,2,2);
+Amep = mepstruct(A,suppA);
 
 options = [];
 options.posdim = true;
 try
-    lambdaM = macaulaylab(Amep,30,options)
+    solution = macaulaylab(Amep,posdim=true);
+    lambdaM  = solution.num
+    resM = [];
+    for j = 1:size(lambdaM,1)
+        W = eval_rmep(A,suppA,lambdaM(j,:));
+        resM(j,1) = min(svd(W));
+    end
+    maxresfinM = max(resM);
+    disp(['Found ', num2str(length(lambdaM)),'  finite eigenvalues. Maximal norm of the residual: ',num2str(maxresfinM)])
 catch ME
     fprintf('Error in macaulaylab: %s \n',ME.message)   
 end

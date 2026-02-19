@@ -23,10 +23,8 @@ lambda = rect_multipareig({A0,A1,A2},opts)
 fprintf('\nMacaulayLab \n-----------\n')
 A = {A0, A1, A2};
 suppA = [0 0; 1 0; 0 1];
-options = [];
-options.posdim = true;
 try
-    lambda1 = rect_multipareig_macaulay(A,30,options)
+    lambda1 = rect_multipareig_macaulay(A,30,true)
 catch ME
     fprintf('Error in macaulaylab: %s \n',ME.message)   
 end

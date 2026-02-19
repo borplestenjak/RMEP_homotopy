@@ -1,20 +1,23 @@
-function [lambda,X] = rect_multipareig_macaulay(A,dend,opts)
+function [lambda,X] = rect_multipareig_macaulay(A,dend,posdim)
 
 if nargin<2
     dend = 30;
 end
 
 if nargin<3
-    opts = [];
+    posdim = 0;
 end
 
 k = numel(A) - 1;
-Amep = mepstruct(A,1,k);
-if isempty(opts)
-    lambda = macaulaylab(Amep,dend); 
+supp = [zeros(1,k); eye(k)];
+Amep = mepstruct(A,supp);
+
+if posdim
+    solution = macaulaylab(Amep,dend,posdim=true); 
 else
-    lambda = macaulaylab(Amep,dend,opts); 
+    solution = macaulaylab(Amep,dend); 
 end
+lambda = solution.num;
 
 n = size(A{1},2);
 

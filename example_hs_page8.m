@@ -9,6 +9,8 @@ Q{3} = [a*b (a + b) (1 + a*b) (a + b) 1]; % Q3(z) = (z^2 + 1)(z + a)(z + b)
 [mat, supp] = heinestieltjes(Q, 2);
 mep = mepstruct(mat, supp);
 
-% sol = macaulaylab(mep, verbose = true, clustering = false);
-sol1 = rect_multipareig(mat);
-sol2 = rect_multipareig_homotopy(mat);
+sol = macaulaylab(mep, verbose = true, clustering = false);
+
+solMac = sol.num
+solMPH = rect_multipareig_homotopy(mat)
+solMP  = rect_multipareig(mat)

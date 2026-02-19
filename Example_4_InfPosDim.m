@@ -63,34 +63,23 @@ end
 maxresfin2 = max(res2);
 disp(['Found ', num2str(length(lambda2)),'  finite eigenvalues. Maximal norm of the residual: ',num2str(maxresfin2)])
 
-% MacaulayLab returns 12 eigenvalues
+% MacaulayLab 
 fprintf("\nMacaulayLab using posdim=true \n---------------------------------\n")
-mon_matrix = monomialsmatrix(3,3);
-M = cell(1,20);
-for j = 1:20
-    M{j} = zeros(4,2);
-end
-M{1} = A0;
-M{2} = A1;
-M{9} = A2;
-M{20} = A3;
-Amep = mepstruct(M,3,3);
+Amep = mepstruct(A,suppA);
 
-options = [];
-options.posdim = true;
 try
-    lambdaM = macaulaylab(Amep,30,options)
+    solution = macaulaylab(Amep,30,posdim=true);
+    lambdaM = solution.num
+    resM = [];
+    for j = 1:length(lambda2)
+        W = eval_rmep(A,suppA,lambdaM(j,:),Z0);
+        resM(j,1) = min(svd(W));
+    end
+    maxresfinM = max(resM);
+    disp(['Found ', num2str(length(lambdaM)),'  finite eigenvalues. Maximal norm of the residual: ',num2str(maxresfinM)])
 catch ME
     fprintf('Error in macaulaylab: %s \n',ME.message)   
 end
 
-resM = [];
-for j = 1:length(lambda2)
-    W = eval_rmep(A,suppA,lambdaM(j,:),Z0);
-    resM(j,1) = min(svd(W));
-end
-
-maxresfinM = max(resM);
-disp(['Found ', num2str(length(lambdaM)),'  finite eigenvalues. Maximal norm of the residual: ',num2str(maxresfinM)])
 
 

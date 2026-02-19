@@ -7,3 +7,7 @@ Q{2} = [0 0 0 0 1]; % Q2(z) = z^4;
 mep = mepstruct(mat, supp);
 
 sol = macaulaylab(mep, verbose = true, clustering = false);
+
+solMac = sol.num
+solMPH = rect_multipareig_homotopy(mat)
+solMP  = rect_multipareig(mat)
