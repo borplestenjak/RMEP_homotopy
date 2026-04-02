@@ -1,7 +1,7 @@
 # RMEP_homotopy
 Matlab implementation of the homotopy method for polynomial rectangular multiparameter eigenvalue problems
 
-## Requirements
+## Dependencies
 
 Examples run in Matlab 2023a or higher. Following packages are requires for some methods:
 
@@ -20,5 +20,11 @@ Try:
   - test_homotopy_rmep: Solve a random k-parameter linear RMEP
   - test_homotopy_poly_rmep: Solve a random k-parameter polynomial RMEP of degree d
   - Example_1_x, ..., Example_12_x
+
+## Contributors
+
+- Bor Plestenjak, Faculty of Mathematics and Physics, University of Ljubljana, Slovenia
+- Christof Vermeersch, Center for Dynamical Systems, Signal Processing, and Data Analytics (STADIUS),
+Department of Electrical Engineering (ESAT), KU Leuven, Belgium
 
 
