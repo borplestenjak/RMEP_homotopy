@@ -27,4 +27,8 @@ Try:
 - Christof Vermeersch, Center for Dynamical Systems, Signal Processing, and Data Analytics (STADIUS),
 Department of Electrical Engineering (ESAT), KU Leuven, Belgium
 
+## Documentations
+
+See Docs\Homotopy_for_RMEPs.pdf
+
 
