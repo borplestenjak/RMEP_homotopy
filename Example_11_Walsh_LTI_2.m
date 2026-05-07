@@ -2,7 +2,7 @@
 
 addpath examples
 
-N = 12;
+N = 14;
 rng(1);
 y = randn(N,1);
 

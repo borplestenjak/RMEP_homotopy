@@ -16,15 +16,16 @@ function [B,lambda,X] = initial_rmep_rec(n,k)
 %   - lambda : matrix m x k, each row is an eigenvalue
 %   - X : matrix n x m with right eigenvectors
 
-a = randn(n,1)+1i*randn(n,1);
-b = randn(n,1)+1i*randn(n,1);
+a = rand(n,1)+1i*rand(n,1);
+b = rand(n,1)+1i*rand(n,1);
 
 B = cell(1,k+1);
 B{1} = [diag(a);zeros(k-1,n)] + [zeros(k-1,n); diag(b)];
 for j = 2:k-1
-    d = randn(n,1)+1i*randn(n,1);
+    d = rand(n,1)+1i*rand(n,1);
     B{1} = B{1} + [zeros(j-1,n); diag(d); zeros(k-j,n)];
 end
+
 for j = 1:k
     B{j+1} = [zeros(j-1,n); eye(n); zeros(k-j,n)];
 end
@@ -87,16 +88,25 @@ end
 if k==3 && m<40
     choice = 1;
 end
-if k==4 && m<17
+if k==4 && m<16
     choice = 1;
 end
-if (k==5 && m<6)
+if (k==5 && m<=5)
     choice = 2;
 end
 if (k==6 && m<=4) || (k==7 && m<=4)
     choice = 2;
 end
-if (k>=8 && m<=3)
+if (k==8 && m<4) 
     choice = 2;
+end
+if (k>=9 && m<=3)
+    choice = 2;
+end
+if (k>=15 && m==3)
+    choice = 3;
+end
+if (k>=25)
+    choice = 3;
 end
 

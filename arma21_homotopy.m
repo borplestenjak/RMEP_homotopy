@@ -80,7 +80,7 @@ alpha2RR = alpha2(ind);
 gammaRR = gamma(ind);
 sigmaRR = [];
 errRR = msvd(ind);
-for k = 1:size(gammaRR)
+for k = 1:length(gammaRR)
     sigmaRR(k,1) = arma21_err(y,real(alpha1RR(k)),real(alpha2RR(k)),real(gammaRR(k)),class_t);
 end
 

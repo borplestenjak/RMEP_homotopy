@@ -134,6 +134,7 @@ for k=1:numel(B)
     tmpAB = [tmpAB; norm(B{k})];
 end
 normAB = norm(tmpAB);
+rec_cond_all = zeros(neig,5); % for residuals and condition numbers
 
 while run<maxruns && length(find(converged==0))>0
     run = run + 1; 
@@ -147,6 +148,8 @@ while run<maxruns && length(find(converged==0))>0
        end
     end
 
+    stat.paths(run) = length(find(converged==0));
+    
     % we follow paths in parallel, change parfor to for for debugging
     parfor ind = 1:neig
         if converged(ind)==0
@@ -233,7 +236,6 @@ while run<maxruns && length(find(converged==0))>0
                 if use_pinv && rcnd<1e-14
                     tang = pinv(Ma0)*b0;
                 end
-
                 noconv = 1;
                 while noconv && (abort_path==0)
             
@@ -258,7 +260,6 @@ while run<maxruns && length(find(converged==0))>0
 
                     % compute corrector by Newton's method
                     while norm(rhs)>tol*normAB && innerstep<maxinnersteps
-                    % while norm(rhs)>tol*(1+norm(W)) && innerstep<maxinnersteps
                         innerstep = innerstep + 1;
                         Ma(1:m,1:n) = W;
                         if linearRMEP
@@ -320,6 +321,7 @@ while run<maxruns && length(find(converged==0))>0
                            if disp_level>=2 
                                 fprintf('Aborted path  %5d, step:%5d, ort: %3.1f, t:%7.2e, h:%7.2e, |lambda(0)|: %7.2e, rcnd: %7.2e\n',...
                                     ind, step, ort, t, h, abs(y(n+1)), rcnd)
+                                fprintf('Parameters: %7.2e %7.2e %7.2e %7.2e %7.2e \n',norm(rhs),tol*normAB,angle_vec,angle_eig,maxangle)
                            end
                            abort_path = 1;
                         end
@@ -343,6 +345,16 @@ while run<maxruns && length(find(converged==0))>0
             lambda(ind,:) = yn(n+1:end,end).';
             if true_t>=1-goal_eps && (converged(ind) == 0) 
                 converged(ind) = 1;
+                % for all converged eigenvalues (homogeneous, could be finite or infinite) we compute 
+                %  - the residual as an affine eigenvalue
+                %  - the condition number as a homogeneous eigenvalue
+                %  - the condition number as an affine eigenvalue
+                lambdaA = yn(n+2:end,end).'/yn(n+1,end); % affine eigenvalue
+                W = eval_rmep(A,suppA,lambdaA);
+                restmp = norm(W*yn(1:n,end));
+                [gm1,s1] = condeig_rmep(A,suppA,lambdaA);
+                [gm2,s2] = condeig_rmep(A,suppA_h,yn(n+1:end,end).',false); % false because of homogeneous eigenvalues 
+                rec_cond_all(ind,:) = [restmp gm1 s1 gm2 s2];
             end
             if disp_level>=4
                 fprintf('Fin path %5d, steps:%5d, minh: %7.2e,  t_end:%7.2e, |lam(0)|: %7.2e, status: %d \n',...
@@ -354,19 +366,7 @@ while run<maxruns && length(find(converged==0))>0
     lambdaA = lambda(:,2:end)./lambda(:,1); % affine eigenvalues
     conv_ind = find(converged==1); % indices of converged homogeneous eigenvalues
 
-    % for all converged eigenvalues (homogeneous, could be finite or infinite) we compute 
-    %  - the residual as an affine eigenvalue
-    %  - the condition number as a homogeneouse eigenvalue
-    %  - the condition number as an affine eigenvalue
-
-    rec_cond = [];
-    for j = 1:length(conv_ind)
-        W = eval_rmep(A,suppA,lambdaA(conv_ind(j),:));
-        restmp = norm(W*X(:,conv_ind(j)));
-        [gm1,s1] = condeig_rmep(A,suppA,lambdaA(conv_ind(j),:));
-        [gm2,s2] = condeig_rmep(A,suppA_h,lambda(conv_ind(j),:),false); % false because of homogeneous eigenvalues 
-        rec_cond(j,:) = [restmp gm1 s1 gm2 s2];
-    end
+    rec_cond = rec_cond_all(conv_ind,:);
 
     % We divide converged paths into finite and infinite eigs
     % finite eigs are ones with small affine residual
@@ -436,13 +436,14 @@ while run<maxruns && length(find(converged==0))>0
     if nargout>4
         stat.converged = converged;     % status of convergence
         stat.rec_cond = rec_cond;       % residuals and condition number of all eigenvalues 
-        stat.rep_indices = rep_indices; % indices to recompute in the next runs
-        stat.maxstepsize = maxstepsize;   
-        stat.stepsize = stepsize; %  
-        stat.stepsize = stepsize; %  
-        stat.innerrol = innertol;
-        stat.maxangle = maxangle;
-        stat.maxsteps = maxsteps;
+        stat.rep_indices{run} = rep_indices; % indices to recompute in the next runs
+        stat.maxstepsize(run) = maxstepsize;   
+        stat.stepsize(run) = stepsize; %  
+        stat.stepsize(run) = stepsize; %  
+        stat.innerrol(run) = innertol;
+        stat.maxangle(run) = maxangle;
+        stat.maxsteps(run) = maxsteps;
+        stat.maxinnersteps(run) = maxinnersteps;
         stat.run = run;
     end
     

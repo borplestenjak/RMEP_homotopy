@@ -1,4 +1,4 @@
-function [lambda,X,lambdaT,XT] = rect_multipareig_homotopy(A,opts)
+function [lambda,X,lambdaT,XT,stat] = rect_multipareig_homotopy(A,opts)
 
 %RECT_MULTIPAREIG_HOMOTOPY  Solve a linear rectangular multiparameter 
 % eigenvalue problem using homotopy
@@ -39,7 +39,7 @@ k = numel(A) - 1;
 n = size(A{1},2);
 
 [B,Lambda0,X0] = initial_rmep(n,k);
-[lambdaT, XT] = homotopy_rmep(A,B,Lambda0,X0,opts);
+[lambdaT, XT, ~, ~, stat] = homotopy_rmep(A,B,Lambda0,X0,opts);
 % homotopy is solving homogeneous problem, solutions might include infinite eigenvalues
 
 % conversion back from homogeneous eigenvalues

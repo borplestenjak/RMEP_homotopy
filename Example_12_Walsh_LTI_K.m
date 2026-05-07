@@ -2,8 +2,8 @@
 
 addpath examples
 
-K = 3;
-N = 10;
+K = 5;
+N = 11;
 rng(1);
 y = randn(N,1);
 

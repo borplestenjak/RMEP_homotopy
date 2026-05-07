@@ -16,8 +16,8 @@ function [B,lambda,X] = initial_rmep2(n)
 
 % Bor Plestenjak, 2026
 
-a = randn(n,1)+1i*randn(n,1);
-b = randn(n,1)+1i*randn(n,1);
+a = rand(n,1)+1i*rand(n,1);
+b = rand(n,1)+1i*rand(n,1);
 
 B0 = [diag(a);zeros(1,n)] + [zeros(1,n); diag(b)];
 B1 = [eye(n);zeros(1,n)];

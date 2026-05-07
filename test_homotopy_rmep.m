@@ -4,8 +4,8 @@
 
 % Change the folowing parameters 
 % ---------------------------------------------------------------------
-n = 20;   % number of columns in matrices A
-k = 3;    % number of parameters
+n = 11;   % number of columns in matrices A
+k = 4;    % number of parameters
 rg1 = 1;  % random generator for the construction of A
 rg2 = 2;  % random generator for the construction of the initial problem B
 
