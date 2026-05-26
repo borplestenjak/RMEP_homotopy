@@ -2,106 +2,66 @@
 
 % Bor Plestenjak 2026
 
-R = readmatrix("Comparison_linear_RMEP.xlsx","Sheet","All data");
+Rall = readmatrix("Comparison_polynomial_RMEP.xlsx","Sheet","All data");
 
 % same size for all positions
 position = [50 200 850 580];
-plot1 = 0;
-plot1b = 1;
+plot1 = 1;
 plot2 = 0;
-plot2b = 1;
 plot3 = 0;
 plot4 = 0;
 plot5 = 0;
+
+rows_3 = find(Rall(:,1)==7);
+R = Rall(rows_3,2:end); % submatrix with data for cubic RMEPs
 
 %% ==================================================================
 % first plot 
 % times for fixed k and different n
 if plot1 
-    set_k = [2 3 5 7];
-    set_maxn = [50 45 14 8];
+    set_deg = [3 4 5 6 7];
+    set_maxn = [10 10 10 10 10];
     ms = 8;
     lw = 2;
-    
-    for j = 1:length(set_k)
-        figure('Position',position)
-        k = set_k(j);
-        maxn = set_maxn(j);
-        ind = find(R(:,1)==k);
-        hom_ind = intersect(find(R(ind,10)>0),find(R(ind,2)<=maxn));
-        mep_ind = intersect(find(R(ind,13)>0),find(R(ind,2)<=maxn));
-        mac_ind = intersect(find(R(ind,16)>0),find(R(ind,2)<=maxn));
-        hom_x = R(ind(hom_ind),2);
-        mep_x = R(ind(mep_ind),2);
-        mac_x = R(ind(mac_ind),2);
-        hom_y0 = R(ind(hom_ind),9);
-        hom_y = R(ind(hom_ind),10);
-        mep_y = R(ind(mep_ind),13);
-        mac_y = R(ind(mac_ind),16);
-        
-        semilogy(mep_x,mep_y,'r:o','MarkerSize',ms,'LineWidth',lw);
-        hold on
-        semilogy(mac_x,mac_y,'g--d','MarkerSize',ms,'LineWidth',lw);
-        semilogy(hom_x,hom_y,'b-square','MarkerSize',ms+1,'LineWidth',lw);
-        % semilogy(hom_x,hom_y0,'b square','MarkerSize',10,'LineWidth',2);
-        hold off
-        legend('MultiParEig','Macaulay','homotopy','Location','southeast','FontSize',15)
-        ylabel('time [s]','FontSize',15)
-        xlabel('n','FontSize',15)
-        title(sprintf('k=%d',k),'FontSize',15)
-        ax = gca;
-        ax.FontSize=20;
-        axis tight
-    end
-end
-    
-if plot1b 
-    set_k = [3 5 7];
-    set_maxn = [40 15 8];
-    ms = 8;
-    lw = 2;
+    k = 2;
     figure('Position',position)
-    for j = 1:length(set_k)
-        k = set_k(j);
+    for j = 1:length(set_deg)
+        deg = set_deg(j);
+        rows = find(Rall(:,1)==deg);
+        R = Rall(rows,2:end); % submatrix with data for cubic RMEPs
         maxn = set_maxn(j);
-        ind = find(R(:,1)==k);
+        ind = find(R(:,1)==2);
         hom_ind = intersect(find(R(ind,10)>0),find(R(ind,2)<=maxn));
-        mep_ind = intersect(find(R(ind,13)>0),find(R(ind,2)<=maxn));
         mac_ind = intersect(find(R(ind,16)>0),find(R(ind,2)<=maxn));
         hom_x = R(ind(hom_ind),2);
-        mep_x = R(ind(mep_ind),2);
         mac_x = R(ind(mac_ind),2);
         hom_y0 = R(ind(hom_ind),9);
         hom_y = R(ind(hom_ind),10);
-        mep_y = R(ind(mep_ind),13);
         mac_y = R(ind(mac_ind),16);
         
-        semilogy(mep_x,mep_y,'r:o','MarkerSize',ms,'LineWidth',lw);
+        semilogy(hom_x,hom_y,'b-square','MarkerSize',ms+1,'LineWidth',lw);
         hold on
         semilogy(mac_x,mac_y,'g--d','MarkerSize',ms,'LineWidth',lw);
-        semilogy(hom_x,hom_y,'b-square','MarkerSize',ms+1,'LineWidth',lw);
-        % semilogy(hom_x,hom_y0,'b square','MarkerSize',ms+1,'LineWidth',2);
-        legend('MultiParEig','Macaulay','homotopy','Location','southeast','FontSize',15)
+        % semilogy(hom_x,hom_y0,'b square','MarkerSize',10,'LineWidth',2);
+        legend('homotopy','Macaulay','Location','southeast','FontSize',15)
         ylabel('time [s]','FontSize',15)
         xlabel('n','FontSize',15)
-        title('k=3,5,7','FontSize',15)
+        title('d=3,4,5,6,7                 k=2','FontSize',15)
         ax = gca;
         ax.FontSize=20;
         axis tight
     end
     hold off
 end
-
+    
 %% ==================================================================
 % second plot 
 % times for fixed n and different k
 if plot2 
-    set_n = [2 4 6 8];
-    set_maxk = [50 15 10 8];
-    ms = 8;
-    lw = 2;
+    set_n = [2 4 6];
+    set_maxk = [4 4 4];
     
-    for j = 1:length(set_n)
+    for j = 1:length(set_k)
         figure('Position',position)
         n = set_n(j);
         maxk = set_maxk(j);
@@ -117,59 +77,20 @@ if plot2
         mep_y = R(ind(mep_ind),13);
         mac_y = R(ind(mac_ind),16);
         
-        semilogy(mep_x,mep_y,'r:o','MarkerSize',ms,'LineWidth',lw);
+        semilogy(hom_x,hom_y,'b-square','MarkerSize',10,'MarkerFaceColor','b','LineWidth',3);
         hold on
-        semilogy(mac_x,mac_y,'g--d','MarkerSize',ms,'LineWidth',lw);
-        semilogy(hom_x,hom_y,'b-square','MarkerSize',ms+1,'LineWidth',lw);
-        legend('MultiParEig','Macaulay','homotopy','Location','southeast','FontSize',15)
+        semilogy(mep_x,mep_y,'r:o','MarkerSize',10,'MarkerFaceColor','r','LineWidth',3);
+        semilogy(mac_x,mac_y,'g--d','MarkerSize',10,'MarkerFaceColor','g','LineWidth',3 );
+        semilogy(hom_x,hom_y0,'b square','MarkerSize',10,'LineWidth',2);
         hold off
+        legend('homotopy','MultiParEig','Macaulay','Location','southeast','FontSize',15)
         ylabel('time [s]','FontSize',15)
-        xlabel('k','FontSize',15)
+        xlabel('n','FontSize',15)
         title(sprintf('n=%d',n),'FontSize',15)
         ax = gca;
         ax.FontSize=20;
         axis tight
     end
-end
-
-%% ==================================================================
-% second plot 
-% times for fixed n and different k
-if plot2b 
-    set_n = [4 6 8];
-    set_maxk = [10 10 8];
-    ms = 8;
-    lw = 2;
-    
-    figure('Position',position)
-    for j = 1:length(set_n)
-        n = set_n(j);
-        maxk = set_maxk(j);
-        ind = find(R(:,2)==n);
-        hom_ind = intersect(find(R(ind,10)>0),find(R(ind,1)<=maxk));
-        mep_ind = intersect(find(R(ind,13)>0),find(R(ind,1)<=maxk));
-        mac_ind = intersect(find(R(ind,16)>0),find(R(ind,1)<=maxk));
-        hom_x = R(ind(hom_ind),1);
-        mep_x = R(ind(mep_ind),1);
-        mac_x = R(ind(mac_ind),1);
-        hom_y0 = R(ind(hom_ind),9);
-        hom_y = R(ind(hom_ind),10);
-        mep_y = R(ind(mep_ind),13);
-        mac_y = R(ind(mac_ind),16);
-        
-        semilogy(mep_x,mep_y,'r:o','MarkerSize',ms,'LineWidth',lw);
-        hold on
-        semilogy(mac_x,mac_y,'g--d','MarkerSize',ms,'LineWidth',lw);
-        semilogy(hom_x,hom_y,'b-square','MarkerSize',ms+1,'LineWidth',lw);
-        legend('MultiParEig','Macaulay','homotopy','Location','southeast','FontSize',15)
-        ylabel('time [s]','FontSize',15)
-        xlabel('k','FontSize',15)
-        title('n=4,6,8','FontSize',15)
-        ax = gca;
-        ax.FontSize=20;
-        axis tight
-    end
-    hold off
 end
 
 %% ==================================================================
@@ -179,8 +100,8 @@ if plot3
     set_k = [2 3];
     set_maxn = [20 20];
     
-    figure('Position',position)
     for j = 1:length(set_k)
+        figure('Position',position)
         k = set_k(j);
         maxn = set_maxn(j);
         ind = find(R(:,1)==k);
@@ -194,19 +115,11 @@ if plot3
         mep_y = R(ind(mep_ind),14);
         mac_y = R(ind(mac_ind),17);
         
-        if j ==1
-            semilogy(hom_x,hom_y,'b square','MarkerSize',10,'LineWidth',2);
-        else
-            semilogy(hom_x,hom_y,'b square','MarkerSize',10,'MarkerFaceColor','b','LineWidth',2);
-        end
+        semilogy(hom_x,hom_y,'b square','MarkerSize',10,'LineWidth',2);
         hold on
-        if j ==1
-            semilogy(mep_x,mep_y,'r o','MarkerSize',10,'LineWidth',2);
-            semilogy(mac_x,mac_y,'g d','MarkerSize',10,'LineWidth',2);
-        else
-            semilogy(mep_x,mep_y,'r o','MarkerSize',10,'MarkerFaceColor','r','LineWidth',2);
-            semilogy(mac_x,mac_y,'g d','MarkerSize',10,'MarkerFaceColor','g','LineWidth',2);
-        end
+        semilogy(mep_x,mep_y,'r o','MarkerSize',10,'LineWidth',2);
+        semilogy(mac_x,mac_y,'g d','MarkerSize',10,'LineWidth',2);
+        hold off
         legend('homotopy','MultiParEig','Macaulay','Location','northwest','FontSize',15)
         ylabel('maximal residual','FontSize',15)
         xlabel('n','FontSize',15)
@@ -215,11 +128,6 @@ if plot3
         ax.FontSize=20;
         axis tight
     end
-    title('k=2 and k=3','FontSize',15)
-    ax = gca;
-    ax.FontSize=20;
-    axis tight
-    hold off
 end
 
 %% ==================================================================

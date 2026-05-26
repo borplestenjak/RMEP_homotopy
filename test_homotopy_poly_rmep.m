@@ -2,9 +2,9 @@
 
 % Change the folowing parameters 
 % ---------------------------------------------------------------------
-n = 6;    % number of columns in matrices A
-k = 4;    % number of parameters
-deg = 3;  % degree of the polynomial RMEP
+n = 2;    % number of columns in matrices A
+k = 3;    % number of parameters
+deg = 2;  % degree of the polynomial RMEP
 rg1 = 1;  % random generator for the construction of A
 rg2 = 2;  % random generator for the construction of the initial problem B
 
@@ -18,6 +18,7 @@ opts.maxruns = 3;
 
 % Random full polynomial RMEP
 suppA = monomials(deg,k);
+suppA = suppA(:,k:-1:1);
 nA = size(suppA,1);
 
 rng(rg1);

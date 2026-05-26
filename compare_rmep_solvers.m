@@ -99,7 +99,11 @@ for ind = 1:meja
         resT = 0;
         for j = 1:size(lambda,1)
             W = eval_rmep(A,[],lambda(j,:),Z0);
-            resT(j,1) = norm(W*XT(:,j))/norm(W);
+            if n>1
+                resT(j,1) = norm(W*XT(:,j))/norm(W);
+            else
+                resT(j,1) = norm(W*XT(:,j));
+            end
         end
         
         Res1.full_time(ind) = tTrace + init_t;
@@ -133,7 +137,11 @@ for ind = 1:meja
         resT = 0;
         for j = 1:size(lambda,1)
             W = eval_rmep(A,[],lambda(j,:),Z0);
-            resT(j,1) = norm(W*X(:,j))/norm(W);
+            if n>1
+                resT(j,1) = norm(W*X(:,j))/norm(W);
+            else
+                resT(j,1) = norm(W*X(:,j));
+            end
         end
         maxres = max(resT);
         Res2.full_time(ind) = tM;
@@ -152,7 +160,11 @@ for ind = 1:meja
         resT = 0;
         for j = 1:size(lambda,1)
             W = eval_rmep(A,[],lambda(j,:),Z0);
-            resT(j,1) = norm(W*X(:,j))/norm(W);
+            if n>1
+                resT(j,1) = norm(W*X(:,j))/norm(W);
+            else
+                resT(j,1) = norm(W*X(:,j));
+            end
         end
         maxres = max(resT);
         Res3.full_time(ind) = tM;
