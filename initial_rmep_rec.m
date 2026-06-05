@@ -16,13 +16,15 @@ function [B,lambda,X] = initial_rmep_rec(n,k)
 %   - lambda : matrix m x k, each row is an eigenvalue
 %   - X : matrix n x m with right eigenvectors
 
-a = rand(n,1)+1i*rand(n,1);
-b = rand(n,1)+1i*rand(n,1);
+theta = 2*pi*(0:n-1)'/n;
+z = exp(1i*theta);
+a = exp(1i*2*pi*rand)*z(randperm(n));
+b = a; 
 
 B = cell(1,k+1);
 B{1} = [diag(a);zeros(k-1,n)] + [zeros(k-1,n); diag(b)];
 for j = 2:k-1
-    d = rand(n,1)+1i*rand(n,1);
+    d = exp(1i*2*pi*rand)*z(randperm(n));
     B{1} = B{1} + [zeros(j-1,n); diag(d); zeros(k-j,n)];
 end
 

@@ -10,7 +10,7 @@ b = randn(N,1);
 
 fprintf('\nHomotopy\n--------\n')
 opts.display = 1;
-opts.maxruns = 2;
+opts.maxruns = 1;
 opts.repeat_opt = 'real';
 tic
 [lambda,X,lambdaT,XT] = poly_rect_multipareig_homotopy(A,suppA,opts); toc, size(lambda)

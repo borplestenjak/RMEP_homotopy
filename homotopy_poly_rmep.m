@@ -351,7 +351,7 @@ while run<maxruns && length(find(converged==0))>0
                 %  - the condition number as an affine eigenvalue
                 lambdaA = yn(n+2:end,end).'/yn(n+1,end); % affine eigenvalue
                 W = eval_rmep(A,suppA,lambdaA);
-                restmp = norm(W*yn(1:n,end));
+                restmp = norm(W*yn(1:n,end))/norm(W);
                 [gm1,s1] = condeig_rmep(A,suppA,lambdaA);
                 [gm2,s2] = condeig_rmep(A,suppA_h,yn(n+1:end,end).',false); % false because of homogeneous eigenvalues 
                 rec_cond_all(ind,:) = [restmp gm1 s1 gm2 s2];

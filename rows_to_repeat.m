@@ -8,6 +8,13 @@ if nargin < 3 || isempty(imagtol), imagtol = 1e-10; end
 % Group rows using uniquetol, 'ByRows' treats each row as a single point 
 % in N-dimensional space, matrix must be real
 
+if isempty(A)
+    ind = [];
+    IA={};
+    return
+end
+
+
 M = [real(A) imag(A)];
 rowNorms = sqrt(sum(abs(M).^2, 2));
 rowNorms(rowNorms == 0) = 1;

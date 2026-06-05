@@ -24,7 +24,7 @@
 % Bor Plestenjak 2026
 
 clear all
-clc
+% clc
 diary Example_CS_Lin_RMEP.txt
 
 % set combinations of 
@@ -35,25 +35,18 @@ diary Example_CS_Lin_RMEP.txt
 %   - number of runs of macaulaylab
 %   - estimated time (just for info for countdown)
 
-Params_k_n = [
-    2  5 5 5 5 1;
-    2 10 5 5 5 2;
-    2 15 5 5 5 5;
-    2 20 5 5 5 10;
-    2 25 5 5 5 25;
-    2 30 5 5 5 40;
-    2 35 5 5 5 90;
-    2 40 3 3 3 140;
-    2 45 3 3 3 205;
-    2 50 3 3 3 185;
-    3 5 5 5 5 3; 
-    3 10 5 5 5 10; 
-    3 15 5 5 5 15; 
-    3 20 3 3 3 375; 
-    3 25 3 3 1 400; 
-    3 30 3 3 0 390; 
-    3 35 1 1 0 375; 
-    ];
+Params_k_n = [ 2	20	0	5	5	50
+2	21	0	5	5	50
+2	22	0	5	5	50
+2	23	0	5	5	50
+2	24	0	5	5	50
+2	25	0	5	5	200
+2	26	0	5	5	200
+2	27	0	5	5	200
+2	28	0	5	5	200
+2	29	0	5	5	200
+2	30	0	5	5	200
+];
 
 Results = Params_k_n;
 Results(end,15) = 0;

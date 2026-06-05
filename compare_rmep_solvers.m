@@ -49,7 +49,7 @@ for ind = 1:meja
 
         tic
         if test_cond
-            while init_run<5 && max_init_cond>1e28
+            while init_run<15 && max_init_cond>1e1
     
                 init_run = init_run +1 ; 
                 [B,Lambda0,X0] = initial_poly_rmep(n,k,ones(1,k));
@@ -58,7 +58,7 @@ for ind = 1:meja
                 % test initial RMEP
                 init_cond = [];
                 for j = 1:nNu 
-                    [gm,s] = condeig_rmep(B,[],Lambda0(j,:));
+                    [gm,s,W] = condeig_rmep(B,[],Lambda0(j,:),1,1e-14);
                     init_cond(j,1) = s;
                 end
                 max_init_cond = max(init_cond)

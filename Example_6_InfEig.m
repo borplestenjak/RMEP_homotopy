@@ -9,7 +9,23 @@
 rng(1)
 A0 = rand(3,2);
 A1 = rand(3,2);
-A2 = ones(3,2);
+A2 = 1*ones(3,2);
+
+A0 = [ 1 -1
+      -2  1
+      -1  2];
+
+A1 = [ 2 -1
+      -2  1
+       4 -1];
+
+B0A = [2 0;
+       3 1;
+       0 2];
+B1 = [1 0;0 1;0 0];
+B2 = [0 0;1 0;0 1];
+
+[lambda0,X0] = rect_multipareig({B0A,B1,B2})
 
 % Multipareig finds the finite eigenvalues if we flag the problem as singular
 fprintf('\nMultiParEig\n-----------\n')
