@@ -3,20 +3,22 @@
 % We take 3x2 quadratic 2-parameter RMEP of the form 
 % A0 + lambda1*A1 + lambda2*A2 + lambda1^2*A3
 %
-% Since none of the qudratic monomials containing lambda2 is present, there
-% are only 6 eigenvalues (a generic QRMEP of this size has 12 solutions). A
-% homogeneous version has infinite eigenvalue (0,0,1) of multiplicity 6.
+% Since none of the quadratic monomials containing lambda2 is present, there
+% are only 6 eigenvalues (a generic QRMEP of this size has 12 eigenvalues). 
+% A homogeneous version has infinite eigenvalue (0,0,1) of multiplicity 6.
 % 
-% If we take initial QRMEP of form B0+lambda1^2*B1+lambda2^2*B2 then
+% If we take initial QRMEP of form B0 + lambda1^2*B1 + lambda2^2*B2 then
 % 6 paths lead to 6 eigenvalues and the remaining 6 paths go to infinity 
 % (we get different points, depending on the initial RMEP B)
 %
-% If we take initial QRMEP of form B0+lambda1^2*B1+lambda2*B2, then
+% If we take initial QRMEP of form B0 + lambda1^2*B1 + lambda2*B2, then
 % 6 paths lead to 6 eigenvalues
 %
-% By computing geometric multiplicities and condition number of the 
+% By computing geometric multiplicities and condition numbers of the 
 % computed 12 eigenvalues, we clearly see which ones are true eigenvalues
 % and which are from paths leading to infinity
+
+% Bor Plestenjak 2026
 
 rng(1)
 A0 = rand(3,2);

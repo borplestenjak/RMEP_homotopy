@@ -1,4 +1,4 @@
-function Y = eval_rmep(A,supp,x,Y)
+function Y = eval_rmep(A,supp,x,Y,class_t)
     
 % EVAL_RMEP evaluate the polynomial multivariate matrix in the 
 % standard monomial basis.
@@ -19,7 +19,9 @@ function Y = eval_rmep(A,supp,x,Y)
 
 % Bor Plestenjak 2026
     
-class_t = superiorfloat(A{:});
+if nargin<5
+    class_t = superiorfloat(A{:});
+end
 
 if nargin<4
     % When called in homotopy_poly_rmep it is faster to provide

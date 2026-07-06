@@ -1,4 +1,4 @@
-function [B,lambda,X] = initial_rmep(n,k)
+function [B,lambda,X] = initial_rmep(n,k,class_t)
 
 %INITIAL_RMEP   Initial linear rectangular MEP for the homotopy
 % [B,lambda,X] = initial_rmep(n,k) returns matrices, eigenvalues 
@@ -9,6 +9,7 @@ function [B,lambda,X] = initial_rmep(n,k)
 % Input:
 %   - n: number of columns in matrices B
 %   - k: number of parameters
+%   - class_t: numeric type to use, default is 'double', use 'single' or 'mp' (needs MCT)
 %
 % Output:
 %   - B : cell {B0,B1,...,Bk}
@@ -17,14 +18,18 @@ function [B,lambda,X] = initial_rmep(n,k)
 
 % Bor Plestenjak, 2026
 
+if nargin<3
+    class_t = 'double';
+end
+
 if k==2
     % fast construction for 2-parameter problems
-    [B,lambda,X] = initial_rmep2(n);
+    [B,lambda,X] = initial_rmep2(n,class_t);
 elseif k==3
     % fast construction for 3-parameter problems
-    [B,lambda,X] = initial_rmep3(n);
+    [B,lambda,X] = initial_rmep3(n,class_t);
 else
     % recursive construction for problems with more than 3 parameters
-    [B,lambda,X] = initial_rmep_rec(n,k);
+    [B,lambda,X] = initial_rmep_rec(n,k,class_t);
 end
 

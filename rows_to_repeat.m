@@ -14,6 +14,7 @@ if isempty(A)
     return
 end
 
+A = double(A);
 
 M = [real(A) imag(A)];
 rowNorms = sqrt(sum(abs(M).^2, 2));

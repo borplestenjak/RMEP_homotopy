@@ -43,11 +43,10 @@ else
     class_t = superiorfloat(y);
 end
 
-if isfield(opts,'delta'),    delta   = opts.delta;    else,   delta = sqrt(eps(class_t));   end
+if isfield(opts,'filter_res'),    filter_res   = opts.filter_res;    else,   filter_res = sqrt(eps(class_t));   end
 if ~isfield(opts,'maxruns'),     opts.maxruns = 1;         end 
 if ~isfield(opts,'maxstepsize'), opts.maxstepsize = 1e-1;  end 
 if ~isfield(opts,'maxangle'),    opts.maxangle = 1e-1;     end 
-if ~isfield(opts,'repeat_opt'),  opts.repeat_opt = 'real'; end 
 if ~isfield(opts,'stepsize'),    opts.stepsize = 1e-12;    end 
 if ~isfield(opts,'display'),     opts.display = 1;         end 
 
@@ -60,7 +59,10 @@ if ~isa(y,class_t), y = numeric_t(y,class_t); end
 A = {M00,M10,M01,M02};
 suppA = [0 0; 1 0; 0 1; 0 2];
 [m,n] = size(M00);
+opts.degB=[1 2];
 
+opts.stepsize = 1e-4;
+filter_res = 1e-4;
 [lambda,X,lambdaT,XT] = poly_rect_multipareig_homotopy(A,suppA,opts);
 neig = size(lambda,1);
 
@@ -74,7 +76,7 @@ for k = 1:neig
     msvd(k,:) = min(svd(W));
 end
 
-ind = find(vecnorm(imag(lambda),Inf,2)<delta);
+ind = find(vecnorm(imag(lambda),Inf,2)<filter_res);
 alphaRR = alpha(ind);
 gammaRR = gamma(ind);
 msvdRR = msvd(ind);
@@ -111,5 +113,3 @@ function e = arma11_err(y,alpha,gamma,class_t)
     e = norm(err)^2;
 
 end
-
-

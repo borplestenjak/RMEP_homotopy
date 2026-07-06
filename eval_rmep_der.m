@@ -1,4 +1,4 @@
-function Y = eval_rmep_der(A,supp,x,coef)
+function Y = eval_rmep_der(A,supp,x,coef,class_t)
     
 % EVAL_RMEP_DER evaluates products of all partial derivatives 
 % of a multivariate column A(lambda) in the standard monomial basis.
@@ -18,7 +18,9 @@ function Y = eval_rmep_der(A,supp,x,coef)
 
 % Bor Plestenjak 2026
 
-class_t = superiorfloat(A);
+if nargin<5
+    class_t = superiorfloat(A);
+end
 
 [r, k] = size(supp);
 if nargin < 4

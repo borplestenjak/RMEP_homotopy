@@ -2,9 +2,9 @@
 
 % Change the folowing parameters 
 % ---------------------------------------------------------------------
-n = 2;    % number of columns in matrices A
+n = 4;    % number of columns in matrices A
 k = 3;    % number of parameters
-deg = 2;  % degree of the polynomial RMEP
+deg = 3;  % degree of the polynomial RMEP
 rg1 = 1;  % random generator for the construction of A
 rg2 = 2;  % random generator for the construction of the initial problem B
 
@@ -12,6 +12,8 @@ rg2 = 2;  % random generator for the construction of the initial problem B
 opts = [];
 opts.display = 1;
 opts.maxruns = 3;
+opts.maxangle = 2.5e-1;
+opts.maxstepsize = 2.5e-1;
 
 % Do not change the part below
 % ---------------------------------------------------------------------

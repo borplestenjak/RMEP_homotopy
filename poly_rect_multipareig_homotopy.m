@@ -63,8 +63,15 @@ if isempty(degB)
     end
 end
 
-[B,Lambda0,X0] = initial_poly_rmep(n,k,degB);
+[B,Lambda0,X0] = initial_poly_rmep(n,k,degB,class_t);
 suppB = [zeros(1,k); diag(degB)]; 
+
+% SA = cellfun(@(M) single(M), A, 'UniformOutput', false);
+% SB = cellfun(@(M) single(M), B, 'UniformOutput', false);
+% SLambda0 = single(Lambda0);
+% SX0 = single(X0);
+% [lambdaT, XT] = homotopy_poly_rmep_gpu(SA,suppA,SB,suppB,SLambda0,SX0); % ,opts);
+
 [lambdaT, XT] = homotopy_poly_rmep(A,suppA,B,suppB,Lambda0,X0,opts);
 % homotopy is solving homogeneous problem, solutions might include infinite eigenvalues
 

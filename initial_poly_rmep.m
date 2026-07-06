@@ -1,4 +1,4 @@
-function [B,lambda,X] = initial_poly_rmep(n,k,deg)
+function [B,lambda,X] = initial_poly_rmep(n,k,deg,class_t)
 
 %INITIAL_POLY_RMEP   Initial polynomial rectangular MEP for the homotopy
 % [B,lambda,X] = initial_rmep(n,k) returns matrices, eigenvalues 
@@ -10,6 +10,7 @@ function [B,lambda,X] = initial_poly_rmep(n,k,deg)
 %   - n: number of columns in matrices B
 %   - k: number of parameters
 %   - deg: degrees of monomials
+%   - class_t: numeric type to use, default is 'double', use 'single' or 'mp' (needs MCT)
 %
 % Output:
 %   - B : cell {B0,B1,...,Bk}
@@ -18,8 +19,12 @@ function [B,lambda,X] = initial_poly_rmep(n,k,deg)
 
 % Bor Plestenjak, 2026
 
+if nargin<4
+    class_t = 'double';
+end
+
 % we construct linear RMEP first
-[B,mu,Xlin] = initial_rmep(n,k);
+[B,mu,Xlin] = initial_rmep(n,k,class_t);
 nLin = size(mu,1);
 
 % and convert its eigenvalues by computing alls possible roots

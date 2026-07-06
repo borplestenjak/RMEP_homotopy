@@ -47,10 +47,9 @@ else
 end
 
 if isfield(opts,'delta'),    delta   = opts.delta;    else,   delta = sqrt(eps(class_t));   end
-if ~isfield(opts,'maxruns'),     opts.maxruns = 2;         end 
+if ~isfield(opts,'maxruns'),     opts.maxruns = 1;         end 
 if ~isfield(opts,'maxstepsize'), opts.maxstepsize = 1e-1;  end 
 if ~isfield(opts,'maxangle'),    opts.maxangle = 1e-1;     end 
-if ~isfield(opts,'repeat_opt'),  opts.repeat_opt = 'real'; end 
 if ~isfield(opts,'stepsize'),    opts.stepsize = 1e-12;    end 
 if ~isfield(opts,'display'),     opts.display = 1;         end 
 

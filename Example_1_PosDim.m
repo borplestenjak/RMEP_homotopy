@@ -10,7 +10,7 @@
 
 A0 = [1 3; 
       2 2; 
-      3 1]
+      3 1];
 
 A1 = [1 2; 
       2 3; 
@@ -18,7 +18,7 @@ A1 = [1 2;
 
 A2 = [1 1;
       2 2;
-      3 0]
+      3 0];
 
 % Multipareig finds the isolated point if we flag the problem as singular
 fprintf('\nMultiParEig\n-----------\n')
@@ -26,7 +26,7 @@ opts = [];
 opts.singular = 1;
 lambda = rect_multipareig({A0,A1,A2},opts)
 
-% MacaulayLab does not find the gap, even if we use the flag posdim=true
+% MacaulayLab finds many eigenvalues on the positive-dimensional solution set
 fprintf('\nMacaulayLab \n-----------\n')
 A = {A0, A1, A2};
 suppA = [0 0; 1 0; 0 1];
@@ -37,7 +37,6 @@ catch ME
 end
 
 % Homotopy finds three eigenvalues, the isolated one and two random ones,
-
 fprintf('\nHomotopy A \n----------\n')
 B0A = [2+1i 0; 3-1i 1+1i; 0 2-1i];
 B1 =  [1 0; 0 1; 0 0];

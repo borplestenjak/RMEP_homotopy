@@ -45,22 +45,11 @@ catch ME
     fprintf('Error in macaulaylab: %s \n',ME.message)   
 end
 
-% Homotopy finds both finite eigenvalues, the isolated one and two random ones,
-% if we run the homotopy again with a different initial problem, the
-% solutions have only the true eigenvalue in common
+% Homotopy finds both finite eigenvalues and another one at infinity
 opts = [];
-opts.display = 1;
+opts.display = 4;
 fprintf('\nHomotopy \n----------\n')
-lambda2 = rect_multipareig_homotopy(A,opts)
+[lambda2,X2,lambdaT2,XT2] = rect_multipareig_homotopy(A,opts);
+lambda2
+lambdaT2
 
-% We compute resdiduals, geometric multiplicities and condition numbers of the three
-% eigenvalues returned by the homotopy method. Al eigenvalues are 
-% geometrically simple, but two are highly ill-conditioned, which is a sign 
-% that these are not true eigenvalues
-res_gm_cond2 = []; 
-for j = 1:size(lambda2,1)
-    res = min(svd(eval_rmep(A,suppA,lambda2(j,:))));
-    [gm,s] = condeig_rmep(A,[],lambda2(j,:));
-    res_gm_cond2(j,:) = [res gm s];
-end
-res_gm_cond_lambda2 = [res_gm_cond2 lambda2]

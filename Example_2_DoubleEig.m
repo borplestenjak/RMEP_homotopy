@@ -6,8 +6,10 @@
 %
 % Homotopy with default settings repeats the computation of two paths that 
 % lead to the double eigenvalue. This could be prevented by setting 
-% repeat_opt='simple as then we repeat only paths leading to simple 
+% repeat_opt='simple' as then we repeat only paths leading to simple 
 % eigenvalues obtained two of more times
+
+% Bor Plestenjak 2026
  
 A0 = [0 0; -1 0; 0 0];
 A1 = [1 0;  0 1; 0 0];

@@ -44,9 +44,8 @@ function [lambda,X,tcell,ycell,stat] = homotopy_poly_rmep(A,suppA,B,suppB,Lambda
 %   - repeat_opt ('all'): how to select paths to repeat, 
 %       - 'all': all duplicates, 
 %       - 'simple': only duplicates that correspond to well-conditioned simple eigenvalues
-%       - 'real' all real duplicates and complex duplicates without conjugate match
-%   - use_pinv (0): solve Jacobian with pinv when the system is close to singular
 %   - filter_res (1e-8): treshold for residual for finite eigenvalues
+%   - gamma : random complex scalar in the homotopy (set to 1 to not use gamma)
 %
 % Output:
 %   - lambda : matrix m x (k+1), each row is a homogeneous eigenvalue
@@ -67,22 +66,23 @@ else
     class_t = superiorfloat(A{:});
 end
 
-if isfield(opts,'stepsize'),      stepsize = opts.stepsize;           else,  stepsize = 1e-8;            end
+if isfield(opts,'stepsize'),      stepsize = opts.stepsize;           else,  stepsize = numeric_t(1e-8,class_t); end
 if isfield(opts,'minstepsize'),   minstepsize = opts.minstepsize;     else,  minstepsize = 2*eps(class_t); end
 if isfield(opts,'maxstepsize'),   maxstepsize = opts.maxstepsize;     else,  maxstepsize = 2.5e-2;       end
 if isfield(opts,'maxsteps'),      maxsteps = opts.maxsteps;           else,  maxsteps = 2000;            end
 if isfield(opts,'maxinnersteps'), maxinnersteps = opts.maxinnersteps; else,  maxinnersteps = 6;          end
-if isfield(opts,'innertol'),      innertol = opts.innertol;           else,  innertol = 3e-13;           end
-if isfield(opts,'finaltol'),      finaltol = opts.finaltol;           else,  finaltol = 1e-15;           end
+if isfield(opts,'innertol'),      innertol = opts.innertol;           else,  innertol = 1e3*eps(class_t);  end
+if isfield(opts,'finaltol'),      finaltol = opts.finaltol;           else,  finaltol = 1e1*eps(class_t); end
 if isfield(opts,'maxruns'),       maxruns = opts.maxruns;             else,  maxruns = 3;                end
 if isfield(opts,'display'),       disp_level = opts.display;          else,  disp_level = 0;             end
 if isfield(opts,'dist_tol'),      dist_tol = opts.dist_tol;           else,  dist_tol = 1e-6;            end
-if isfield(opts,'fail_stepsize'), fail_stepsize = opts.fail_stepsize; else,  fail_stepsize = 1e-30;      end
-if isfield(opts,'abort_inf'),     abort_inf = opts.abort_inf;         else,  abort_inf = 1e-15;          end
+if isfield(opts,'fail_stepsize'), fail_stepsize = opts.fail_stepsize; else,  fail_stepsize = 1e2*eps(class_t)^2; end
+if isfield(opts,'abort_inf'),     abort_inf = opts.abort_inf;         else,  abort_inf = 1e1*eps(class_t);  end
 if isfield(opts,'maxangle'),      maxangle = opts.maxangle;           else,  maxangle = 1e-1;            end
 if isfield(opts,'repeat_opt'),    repeat_opt = opts.repeat_opt;       else,  repeat_opt = 'all';         end
-if isfield(opts,'use_pinv'),      use_pinv = opts.use_pinv;           else,  use_pinv = 0;               end
 if isfield(opts,'filter_res'),    filter_res = opts.filter_res;       else,  filter_res = 1e2*sqrt(eps(class_t));  end
+if isfield(opts,'goal_res'),      goal_eps = opts.goal_eps;           else,  goal_eps = 1e3*eps(class_t); end 
+if isfield(opts,'gamma'),         gamma = opts.gamma;                 else,  gamma = exp(2*pi(class_t)*1i*rand(class_t)); end 
 
 linearRMEP = isempty(suppA);
 if linearRMEP 
@@ -94,6 +94,8 @@ end
 neig = size(Lambda0,1); % number of paths to follow
 tcell = cell(1,neig);
 ycell = cell(1,neig);
+
+jac_steps = zeros(1,neig); % number of systems that have to solved (predictor and correctors)
 rep_indices = 1:neig; % indices of paths that we have to follow
 
 n_cellA = numel(A);
@@ -119,12 +121,15 @@ stat.run = 0;
 converged = zeros(1,neig);
 minh = ones(1,neig,class_t);
 run = 0;
-goal_eps = 10*eps(class_t); % how close to 1 must we get for convergence
 
 deg = max(sum(suppA,2)); % degree of the RMEP
 % support for homogeneous representations of RMEPS A(lambda) and B(lambda)
 suppA_h = [deg-sum(suppA,2) suppA];
 suppB_h = [deg-sum(suppB,2) suppB];
+
+for k=1:numel(B) % introduce random scalar gamma
+    B{k} = gamma*B{k};
+end
 
 tmpAB = [];
 for k=1:numel(A)
@@ -158,102 +163,94 @@ while run<maxruns && length(find(converged==0))>0
             Z1a = zeros(n_cellA,kpar+1,class_t);
             Z1b = zeros(n_cellB,kpar+1,class_t);
             Ma = zeros(m+2,n+kpar+1,class_t);
-            Ma0 = zeros(m+2,n+kpar+1,class_t);
             b0 = zeros(m+2,1,class_t);
             Ca = zeros(m,n_cellA,class_t);   
             Cb = zeros(m,n_cellB,class_t);   
             C = cell(1,kpar+1);   
+            D = cell(1,kpar+1);   
             % we follow homogeneous RMEP, we convert initial eigenvalue to homogeneous form
             lambda0 = [1; Lambda0(ind,:).'];
             lambda0 = lambda0/norm(lambda0);
-            true_t = 0;
-            t = 0;
+            t = numeric_t(0,class_t);
             y = [X0(:,ind); lambda0]; % initial vector for the homotopy
             tn = t;
             yn = y;
             step = 0;
             h = stepsize;
             abort_path = 0;
-            ort = 1; % orientation, we switch after true_t > 1/2
-            ta = 0;
-            tb = 1;
-            facA = 1;
-            facB = 0;
-            facAp = 1;
-            facBp = 1;
-           
-            % path following
-            while (true_t<1-goal_eps) && (step<maxsteps) && (abort_path==0)
+            jac_steps(ind) = 0;
+            Aval = zeros(m,n,class_t);
+            Bval = zeros(m,n,class_t);
 
-                if ort == 1 && true_t>0.5
-                    t = 1-t;
-                    ta = 1;
-                    tb = 0;
-                    ort = -1;
+            % initial Jacobian (t=0)   
+            if linearRMEP
+                W = numeric_t(0,class_t);
+                Wt = numeric_t(0,class_t);
+                for j = 1:kpar+1
+                    C{j} = B{j}; 
+                    D{j} = A{j}-B{j}; 
+                    W = W + y(n+j)*B{j};
                 end
+            else
+                Aval = eval_rmep(A,suppA_h,y(n+1:end),Z0,class_t);
+                Bval = eval_rmep(B,suppB_h,y(n+1:end),Z0,class_t);
+                W = Bval; 
+            end
+
+            % path following
+            while (t<1-goal_eps) && (step<maxsteps) && (abort_path==0)
 
                 step = step + 1;
                 tol = innertol;
-                if ort==-1 && h >= t
-                    h = t;
+                if h > 1-t
+                    h = 1-t;
                     tol = finaltol; % we increase tolerance for the last step
                 end
 
-                facB = tb-ort*t;
-                facA = ta+ort*t;
+                % Jacobian for the tangent vector
+                Ma(1:m,1:n) = W;
                 if linearRMEP
-                    W = 0;
-                    Wt = 0;
+                    Wt = numeric_t(0,class_t);
                     for j = 1:kpar+1
-                        C{j} = facB*B{j} + facA*A{j}; 
-                        W = W + y(n+j)*C{j};
-                        Wt = Wt + y(n+j)*(A{j} - B{j}); 
-                    end
-                    for j = 1:kpar+1
-                        Ma0(1:m,n+j) = C{j}*y(1:n);
+                         Ma(1:m,n+j) = C{j}*y(1:n);
+                        Wt = Wt + y(n+j)*D{j}; 
                     end
                 else
-                    Aval = eval_rmep(A,suppA_h,y(n+1:end),Z0);
-                    Bval = eval_rmep(B,suppB_h,y(n+1:end),Z0);
-                    W = facB*Bval + facA*Aval;  
-                    Wt = Aval - Bval;
-                
                     for j = 1:n_cellA
                         Ca(:,j) = A{j}*y(1:n);
                     end
                     for j = 1:n_cellB
                         Cb(:,j) = B{j}*y(1:n);
                     end
-                    Ma0(1:m,n+1:end) = facB*eval_rmep_der(Cb,suppB_h,y(n+1:end),Z1b) + facA*eval_rmep_der(Ca,suppA_h,y(n+1:end),Z1a);
+                    Ma(1:m,n+1:end) = (1-t)*eval_rmep_der(Cb,suppB_h,y(n+1:end),Z1b,class_t) + t*eval_rmep_der(Ca,suppA_h,y(n+1:end),Z1a,class_t);
+                    Wt = Aval - Bval;                    
                 end
-                Ma0(1:m,1:n) = W; 
-                Ma0(m+1,1:n) = 2*y(1:n)';
-                Ma0(m+2,n+1:end) = 2*y(n+1:end)';
-                b0(1:m) = -ort*Wt*y(1:n);
-            
+                Ma(m+1,1:n) = 2*y(1:n)';
+                Ma(m+2,n+1:end) = 2*y(n+1:end)';
+                b0(1:m) = -Wt*y(1:n);
+
                 % tangent vector (with t'=1) for the predictor
-                [tang, rcnd] = linsolve(Ma0,b0); 
-                if use_pinv && rcnd<1e-14
-                    tang = pinv(Ma0)*b0;
-                end
+                jac_steps(ind) = jac_steps(ind) + 1;
+                [tang, rcnd] = linsolve(Ma,b0); 
+
                 noconv = 1;
                 while noconv && (abort_path==0)
             
                     % compute predictor by Euler's method
-                    yp = y + ort*h*tang;
-                    tp = t + ort*h;
-                    facBp = tb - ort*tp;  % 1 - true_t
-                    facAp = ta + ort*tp;  % true_t
+                    yp = y + h*tang;
+                    tp = t + h;
 
                     % initial residual
                     if linearRMEP
-                        W = 0;
+                        W = numeric_t(0,class_t);
                         for j = 1:kpar+1
-                            C{j} = facBp*B{j} + facAp*A{j}; 
+                            C{j} = (1-tp)*B{j} + tp*A{j}; 
                             W = W + yp(n+j)*C{j};
                         end
                     else
-                        W = facBp*eval_rmep(B,suppB_h,yp(n+1:end),Z0) + facAp*eval_rmep(A,suppA_h,yp(n+1:end),Z0);
+                        Aval = eval_rmep(A,suppA_h,yp(n+1:end),Z0,class_t);
+                        Bval = eval_rmep(B,suppB_h,yp(n+1:end),Z0,class_t);
+                        W = (1-tp)*Bval + tp*Aval; 
                     end
                     rhs = [W*yp(1:n); yp(1:n)'*yp(1:n)-1; yp(n+1:end)'*yp(n+1:end)-1];
                     innerstep = 0;
@@ -273,44 +270,43 @@ while run<maxruns && length(find(converged==0))>0
                             for j = 1:n_cellB
                                 Cb(:,j) = B{j}*yp(1:n);
                             end
-                            Ma(1:m,n+1:end) = facBp*eval_rmep_der(Cb,suppB_h,yp(n+1:end),Z1b) + facAp*eval_rmep_der(Ca,suppA_h,yp(n+1:end),Z1a);
+                            Ma(1:m,n+1:end) = (1-tp)*eval_rmep_der(Cb,suppB_h,yp(n+1:end),Z1b,class_t) + tp*eval_rmep_der(Ca,suppA_h,yp(n+1:end),Z1a,class_t);
                         end
                         Ma(m+1,1:n) = 2*yp(1:n)';
                         Ma(m+2,n+1:end) = 2*yp(n+1:end)';
                         % solve the system with the Jacobian matrix Ma
+                        jac_steps(ind) = jac_steps(ind) + 1;
                         [dx, rcnd] = linsolve(Ma,-rhs);
-                        if use_pinv && rcnd<1e-14
-                            dx = -(pinv(Ma)*rhs);
-                        end
                         yp = yp + dx; 
                         yp(1:n) = yp(1:n)/norm(yp(1:n));
                         yp(n+1:end) = yp(n+1:end)/norm(yp(n+1:end));
+                        % compute new residual H(t,yp)
                         if linearRMEP
-                            W = 0;
+                            W = numeric_t(0,class_t);
                             for j = 1:kpar+1
-                                C{j} = facBp*B{j} + facAp*A{j}; 
                                 W = W + yp(n+j)*C{j};
                             end
                         else    
-                            W = facBp*eval_rmep(B,suppB_h,yp(n+1:end),Z0) + facAp*eval_rmep(A,suppA_h,yp(n+1:end),Z0);
+                            Aval = eval_rmep(A,suppA_h,yp(n+1:end),Z0,class_t);
+                            Bval = eval_rmep(B,suppB_h,yp(n+1:end),Z0,class_t);
+                            W = (1-tp)*Bval + tp*Aval; 
                         end
                         rhs = [W*yp(1:n); yp(1:n)'*yp(1:n)-1; yp(n+1:end)'*yp(n+1:end)-1];
                     end
 
-                    angle_vec = norm(y(1:n)-(y(1:n)'*yp(1:n))*yp(1:n));
-                    angle_eig = norm(y(n+1:end)-(y(n+1:end)'*yp(n+1:end))*yp(n+1:end));
+                    angle_vec = norm(y(1:n)-(yp(1:n)'*y(1:n))*yp(1:n));
+                    angle_eig = norm(y(n+1:end)-(yp(n+1:end)'*y(n+1:end))*yp(n+1:end));
                     
                     if norm(rhs)<tol*normAB && angle_vec<maxangle && angle_eig<maxangle
                         % Newton method converged, angles are not too large, we take step forward
                         t = tp;
                         y = yp;
-                        tn = [tn ta+ort*t];
+                        tn = [tn t];
                         yn = [yn y];
                         noconv = 0;
-                        true_t = ta + ort*t;
                         % if convergence is very fast, we increase h 
                         if innerstep < maxinnersteps-1
-                            h = min(2*h,maxstepsize);
+                            h = min(sqrt(2)*h,maxstepsize);
                         end
                     else
                         % no convergence, we repeat predictor-corrector step with smaller h
@@ -319,8 +315,8 @@ while run<maxruns && length(find(converged==0))>0
                         % if h is too small, we abort this path as we can not move forward in time anymore
                         if h<(t*minstepsize + fail_stepsize)
                            if disp_level>=2 
-                                fprintf('Aborted path  %5d, step:%5d, ort: %3.1f, t:%7.2e, h:%7.2e, |lambda(0)|: %7.2e, rcnd: %7.2e\n',...
-                                    ind, step, ort, t, h, abs(y(n+1)), rcnd)
+                                fprintf('Aborted path  %5d, step:%5d, t:%7.2e, h:%7.2e, |lambda(0)|: %7.2e, rcnd: %7.2e\n',...
+                                    ind, step, t, h, abs(y(n+1)), rcnd)
                                 fprintf('Parameters: %7.2e %7.2e %7.2e %7.2e %7.2e \n',norm(rhs),tol*normAB,angle_vec,angle_eig,maxangle)
                            end
                            abort_path = 1;
@@ -331,8 +327,8 @@ while run<maxruns && length(find(converged==0))>0
                 if abort_inf>0 && abs(y(n+1))<abort_inf
                      % infinite eigenvalue
                      if disp_level>=3
-                        fprintf('Infinite path %5d, step:%5d, ort: %3.1f, t:%7.2e, h:%7.2e, |lambda(0)|: %7.2e\n',...
-                            ind, step, ort, t, h, abs(y(n+1)))
+                        fprintf('Infinite path %5d, step:%5d, t:%7.2e, h:%7.2e, |lambda(0)|: %7.2e\n',...
+                            ind, step, t, h, abs(y(n+1)))
                      end
                      converged(ind) = 2;
                      abort_path = 1;
@@ -343,99 +339,60 @@ while run<maxruns && length(find(converged==0))>0
             ycell{ind} = yn;
             X(:,ind) = yn(1:n,end);
             lambda(ind,:) = yn(n+1:end,end).';
-            if true_t>=1-goal_eps && (converged(ind) == 0) 
+            if t>=1-goal_eps && (converged(ind) == 0) 
                 converged(ind) = 1;
-                % for all converged eigenvalues (homogeneous, could be finite or infinite) we compute 
-                %  - the residual as an affine eigenvalue
-                %  - the condition number as a homogeneous eigenvalue
-                %  - the condition number as an affine eigenvalue
-                lambdaA = yn(n+2:end,end).'/yn(n+1,end); % affine eigenvalue
-                W = eval_rmep(A,suppA,lambdaA);
-                restmp = norm(W*yn(1:n,end))/norm(W);
-                [gm1,s1] = condeig_rmep(A,suppA,lambdaA);
-                [gm2,s2] = condeig_rmep(A,suppA_h,yn(n+1:end,end).',false); % false because of homogeneous eigenvalues 
-                rec_cond_all(ind,:) = [restmp gm1 s1 gm2 s2];
-            end
+            else
+                if disp_level>=2 && step==maxsteps
+                   fprintf('Maxsteps path  %5d, step:%5d, t:%7.2e, h:%7.2e, |lambda(0)|: %7.2e, 1-t:%7.2e\n',...
+                          ind, step, t, h, abs(y(n+1)), 1-t)
+                end
+            end    
             if disp_level>=4
                 fprintf('Fin path %5d, steps:%5d, minh: %7.2e,  t_end:%7.2e, |lam(0)|: %7.2e, status: %d \n',...
-                    ind, step, minh(ind), true_t, abs(y(n+1)), converged(ind))
+                    ind, step, minh(ind), t, abs(y(n+1)), converged(ind))
             end
         end
     end  % parfoor loop
 
-    lambdaA = lambda(:,2:end)./lambda(:,1); % affine eigenvalues
+    % we divide converged homogeneous eigenvalues into finite and infinite
     conv_ind = find(converged==1); % indices of converged homogeneous eigenvalues
-
-    rec_cond = rec_cond_all(conv_ind,:);
-
-    % We divide converged paths into finite and infinite eigs
-    % finite eigs are ones with small affine residual
-    fin_ind = find(rec_cond(:,1)<filter_res);
-    inf_ind = find(rec_cond(:,1)>=filter_res);
-    fin_conv_ind = conv_ind(fin_ind); % indices of converged finite eigs
-    inf_conv_ind = conv_ind(inf_ind); % indices of remaining converged eigs
-
-    lambda_fin = lambdaA(fin_conv_ind,:); % converged finite affine eigs
-    lambda_inf = lambda(inf_conv_ind,:);  % remaining converged eigs
-    % we scale inf eigenvalues so that maximal element is 1 for easier search of duplicates
+    fin_ind = find(abs(lambda(conv_ind,1))>filter_res);
+    inf_ind = find(abs(lambda(conv_ind,1))<filter_res);
+    % we normalize finite eigenvalues so that lambda_0 = 1 and infinite so
+    % that maximal element is 1
+    lambdaN = lambda(conv_ind,:);
+    lambdaN(fin_ind,:) = lambdaN(fin_ind,:)./lambdaN(fin_ind,1);
     for j = 1:length(inf_ind)
-        [~,posmx] = max(abs(lambda_inf(j,2:end)));
-        lambda_inf(j,:) = lambda_inf(j,:)/lambda_inf(j,posmx);
+        [~,posmx] = max(abs(lambdaN(inf_ind(j),2:end)));
+        lambdaN(inf_ind(j),:) = lambdaN(inf_ind(j),:)/lambdaN(inf_ind(j),posmx);
     end
+    % now we can find duplicate indices for new trial
+    ind_mult = find_duplicates(lambdaN,dist_tol);    % indices of multiple eigenvalues
 
-    % we search for duplicates among finite eigenvalues
-    fin_mult = find_duplicates(lambda_fin,dist_tol);       % indices of multiple finite eigenvalues
-    fin_simple = setdiff(1:length(fin_conv_ind),fin_mult); % indices of simple finite eigenvalues
-    % we repeat computation of all ill-conditioned simple eigenvalues
-    fin_simple_ill_cond = fin_simple(find(rec_cond(fin_ind(fin_simple),3)>1/filter_res));  
 
-    % in addition we repeat 
-    %  - all multiple eigenvalues ('all')
-    %  - just multiple eigenvalues that represent simple well-conditioned eigenvalues ('simple')
-    %  - all multiple real eigenvalues and multiple complex without conjugate pairs ('real')
-    if strcmp(repeat_opt,'all') 
-        fin_repeat_dupl = fin_mult; 
-    elseif strcmp(repeat_opt,'simple')
-        fin_repeat_dupl = fin_mult(rec_cond(fin_ind(fin_mult),3)<1/filter_res);
-    elseif strcmp(repeat_opt,'real')
-        fin_repeat_dupl = rows_to_repeat(lambda_fin,dist_tol,filter_res);
-    else
-        error('unknown option for repeat_eig')
+    if strcmp(repeat_opt,'simple')
+        % we repat only multiple eigenvalues that represent simple well-conditioned eigenvalues ('simple')
+        cnd = [];
+        for j = 1:length(ind_mult)
+            [gm2,s2] = condeig_rmep(A,suppA_h,lambda(conv_ind(ind_mult(j)),:).',false); % false because of homogeneous eigenvalues 
+            cnd(j,1) = s2;
+        end
+        indices_recomp = conv_ind(cnd<1/filter_res);
+    else    
+        % we repeat all multiple eigenvalues
+        indices_recomp = conv_ind(ind_mult);  % indices of eigenvalues to repeat
     end
-
-    ind_repeat_fin = fin_conv_ind(union(fin_repeat_dupl,fin_simple_ill_cond));  % indices of finite eigenvalues to repeat
-
-    % we search for duplicates among infinite eigenvalues
-    inf_mult = find_duplicates(lambda_inf,dist_tol);
-    inf_simple = setdiff(1:length(inf_conv_ind),inf_mult);
-    % we repeat computation of all ill-conditioned infinite eigenvalues (in homogeneous setting)
-    inf_simple_ill_cond = inf_simple(find(rec_cond(inf_ind(inf_simple),5)>1/filter_res));
-
-    if strcmp(repeat_opt,'all') 
-        inf_repeat_dupl = inf_mult; 
-    elseif strcmp(repeat_opt,'simple')
-        inf_repeat_dupl = inf_mult(rec_cond(inf_ind(inf_mult),3)<1/filter_res);
-    elseif strcmp(repeat_opt,'real')
-        inf_repeat_dupl = rows_to_repeat(lambda_inf,dist_tol,filter_res);
-    else
-        error('unknown option for repeat_eig')
-    end
-    
-    ind_repeat_inf = inf_conv_ind(union(inf_repeat_dupl,inf_simple_ill_cond));  % indices of infinite eigenvalues to repeat
-    
-    indices_recomp = union(ind_repeat_fin,ind_repeat_inf); % indices of path to recompute
-
+        
     % for some problems (arma, lti, ..) it is important to know the number of real finite solutions
-    ind_real = find(vecnorm(double(imag(lambda_fin)),Inf,2)<filter_res);
+    ind_real = find(vecnorm(double(imag(lambdaN(fin_ind,:))),Inf,2)<filter_res);
 
     % we also repeat all aborted paths (and not detected as infinite eigenvalues)
     indices_fail = find(converged==0);
     fail = length(indices_fail);
-    rep_indices = unique([indices_recomp indices_fail]);
+    rep_indices = unique([indices_recomp(:); indices_fail(:)]);
 
     if nargout>4
         stat.converged = converged;     % status of convergence
-        stat.rec_cond = rec_cond;       % residuals and condition number of all eigenvalues 
         stat.rep_indices{run} = rep_indices; % indices to recompute in the next runs
         stat.maxstepsize(run) = maxstepsize;   
         stat.stepsize(run) = stepsize; %  
@@ -451,13 +408,15 @@ while run<maxruns && length(find(converged==0))>0
         nconv = length(find(converged(follow_ind)==1)) + length(find(converged(follow_ind)==2));
         steps = cellfun(@numel, tcell);
         steps = steps(follow_ind);
+        jacsteps = jac_steps(follow_ind);
         minstepused = min(minh(follow_ind));
         inf_eigs = length(find(converged==2));
         if disp_level>1
            fprintf('Run %d',run)
         end
-        fprintf(', conv %d, real %d, fin %d, to repeat %d, inf %d; steps (avg %d, max %d, min %d); minh %6.1e, h0 %6.1e, maxh %6.1e; maxfi %6.1e; intol %6.1e, Newt %d\n',...
-            nconv, length(ind_real), length(fin_ind), length(rep_indices), inf_eigs, round(mean(steps)),max(steps),min(steps),minstepused, ...
+        fprintf(', conv %d, real %d, fin %d, to repeat %d, inf %d; steps %d (avg %d, max %d, min %d); jacsteps %d (avg %d, max %d, min %d) minh %6.1e, h0 %6.1e, maxh %6.1e; maxfi %6.1e; intol %6.1e, Newt %d\n',...
+            nconv, length(ind_real), length(fin_ind), length(rep_indices), inf_eigs, sum(steps), round(mean(steps)),max(steps),min(steps), ...
+            sum(jacsteps), round(mean(jacsteps)),max(jacsteps),min(jacsteps), minstepused, ...
             stepsize, maxstepsize, maxangle, innertol, maxinnersteps)
     end
     if ~isempty(rep_indices)
@@ -471,3 +430,5 @@ while run<maxruns && length(find(converged==0))>0
         maxsteps = 3*maxsteps;
     end
 end
+
+

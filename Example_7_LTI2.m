@@ -1,6 +1,6 @@
 % Computation of LTI(2) and comparison to solution obtained by MultiParEig
 
-N = 6;
+N = 8;
 rng(1);
 y = randn(N,1);
 
@@ -17,7 +17,9 @@ value = tmp
 
 fprintf('lti2 from MultiParEig\n---------------------\n')
 tic
-[points2,val2,err2,cand2] = lti2(y);
+opts = [];
+opts.showrank = 1;
+[points2,val2,err2,cand2] = lti2(y,opts);
 t2 = toc
 nsolutions2 = [size(points2,1) size(cand2,1)]
 points2

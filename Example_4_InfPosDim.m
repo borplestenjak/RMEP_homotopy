@@ -13,6 +13,8 @@
 % If we start homotopy from B0 + lambda1*B1 + lambda2^2*B2 + lambda3^3*B3,
 % we follow 24 paths to get 12 eigenvalues
 
+% Bor Plestenjak 2026
+
 rng(1)
 A0 = randn(4,2);
 A1 = randn(4,2);
@@ -24,6 +26,7 @@ suppA = [0 0 0;1 0 0;0 1 1;0 0 3];
 k = 3;
 n = 2;
 
+rng(4);
 fprintf('\nHomotopy 1 using initial RMEP B0 + lambda1^3*B1 + lambda2^3*B2 + lambda3^3*B3\n')
 fprintf('-----------------------------------------------------------------------------\n')
 [B,Lambda0,X0] = initial_poly_rmep(2,3,[3 3 3]);
@@ -32,6 +35,7 @@ suppB = [zeros(1,k); 3*eye(k)];
 opts = [];
 opts.display = 2;
 opts.maxruns = 2;
+opts.maxangle = 1e-2;
 [lambdaT,XT] = homotopy_poly_rmep(A,suppA,B,suppB,Lambda0,X0,opts);
 
 % extract finite solutions

@@ -1,4 +1,4 @@
-function [B,lambda,X] = initial_rmep_rec(n,k)
+function [B,lambda,X] = initial_rmep_rec(n,k,class_t)
 
 %INITIAL_RMEP_REC   Initial linear rectangular MEP for the homotopy
 % [B,lambda,X] = initial_rmep_rec(n,k) returns matrices, eigenvalues 
@@ -10,33 +10,38 @@ function [B,lambda,X] = initial_rmep_rec(n,k)
 % Input:
 %   - n: number of columns in matrices B
 %   - k: number of parameters
+%   - class_t: numeric type to use, default is 'double', use 'single' or 'mp' (needs MCT)
 %
 % Output:
 %   - B : cell {B0,B1,...,Bk}
 %   - lambda : matrix m x k, each row is an eigenvalue
 %   - X : matrix n x m with right eigenvectors
 
-theta = 2*pi*(0:n-1)'/n;
+if nargin<3
+    class_t = 'double';
+end
+
+theta = 2*pi(class_t)*(0:n-1)'/n;
 z = exp(1i*theta);
-a = exp(1i*2*pi*rand)*z(randperm(n));
+a = exp(1i*2*pi(class_t)*rand(class_t))*z(randperm(n));
 b = a; 
 
 B = cell(1,k+1);
-B{1} = [diag(a);zeros(k-1,n)] + [zeros(k-1,n); diag(b)];
+B{1} = [diag(a);zeros(k-1,n,class_t)] + [zeros(k-1,n,class_t); diag(b)];
 for j = 2:k-1
-    d = exp(1i*2*pi*rand)*z(randperm(n));
-    B{1} = B{1} + [zeros(j-1,n); diag(d); zeros(k-j,n)];
+    d = exp(1i*2*pi(class_t)*rand(class_t))*z(randperm(n));
+    B{1} = B{1} + [zeros(j-1,n,class_t); diag(d); zeros(k-j,n,class_t)];
 end
 
 for j = 1:k
-    B{j+1} = [zeros(j-1,n); eye(n); zeros(k-j,n)];
+    B{j+1} = [zeros(j-1,n,class_t); eye(n,class_t); zeros(k-j,n,class_t)];
 end
 
 nsol = nchoosek(n+k-1,k);
-lambda = zeros(nsol,k);
-X = zeros(n,nsol);
+lambda = zeros(nsol,k,class_t);
+X = zeros(n,nsol,class_t);
 ind_col = 0;
-z0 = zeros(n,1);
+z0 = zeros(n,1,class_t);
 A = cell(1,k-1);
 
 for i = 1:n

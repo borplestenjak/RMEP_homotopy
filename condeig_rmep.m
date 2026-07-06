@@ -51,11 +51,11 @@ end
 
 W = eval_rmep(A,suppA,lambda);
 if nargin<5
-    tol = sqrt(eps)*norm(W);
+    tol = sqrt(eps(class_t))*norm(W);
 end
 s = svd(W);
 gm = n - rank(W,tol);
-if gm == 1
+if gm >= 1
     [U,S,V] = svd(W);
     x = V(:,end);
     if affine

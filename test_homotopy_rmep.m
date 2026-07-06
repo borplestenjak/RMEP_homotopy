@@ -4,15 +4,18 @@
 
 % Change the folowing parameters 
 % ---------------------------------------------------------------------
-n = 11;   % number of columns in matrices A
-k = 4;    % number of parameters
+n = 20;   % number of columns in matrices A
+k = 3;    % number of parameters
 rg1 = 1;  % random generator for the construction of A
 rg2 = 2;  % random generator for the construction of the initial problem B
 
 % Options for the homotopy_poly_rmep
 opts = [];
-opts.display = 1;
-opts.maxruns = 3;
+opts.display = 1;  
+opts.maxruns = 4;
+opts.maxangle = 2.5e-1;
+opts.maxstepsize = 2.5e-1;
+opts.maxinnersteps = 6; 
 
 % Do not change the part below
 % ---------------------------------------------------------------------

@@ -19,7 +19,7 @@ realind = find(vecnorm(imag(lambda),Inf,2)<1e-8);
 nsolutions = [size(lambda,1) length(realind)]
 real_solutions = real(lambda(realind,:))
 
-fprintf('lti2 from MultiParEig\n---------------------\n')
+fprintf('rect_quad from MultiParEig\n---------------------\n')
 tic
 [mu,X] = rect_quad_multipareig(A); 
 t2 = toc

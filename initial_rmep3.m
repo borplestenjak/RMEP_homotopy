@@ -1,4 +1,4 @@
-function [B,lambda,X] = initial_rmep3(n)
+function [B,lambda,X] = initial_rmep3(n,class_t)
 
 %INITIAL_RMEP3   Initial linear 3-parameter rectangular MEP for the homotopy
 % [B,lambda,X] = initial_rmep3(n) returns matrices, eigenvalues 
@@ -8,6 +8,7 @@ function [B,lambda,X] = initial_rmep3(n)
 %
 % Input:
 %   - n: number of columns in matrices B
+%   - class_t: numeric type to use, default is 'double', use 'single' or 'mp' (needs MCT)
 %
 % Output:
 %   - B : cell {B0,B1,B2,B3}
@@ -16,24 +17,28 @@ function [B,lambda,X] = initial_rmep3(n)
 
 % Bor Plestenjak, 2026
 
-theta = 2*pi*(0:n-1)'/n;
-z = exp(1i*theta);
-a = exp(1i*2*pi*rand)*z(randperm(n));
-b = a; 
-c = exp(1i*2*pi*rand)*z(randperm(n));
+if nargin<2
+    class_t = 'double';
+end
 
-B0 = [diag(a);zeros(2,n)] + [zeros(1,n); diag(c); zeros(1,n)] + [zeros(2,n); diag(b)];
-B1 = [eye(n);zeros(2,n)];
-B2 = [zeros(1,n); eye(n); zeros(1,n)];
-B3 = [zeros(2,n); eye(n)];
+theta = 2*pi(class_t)*(0:n-1)'/n;
+z = exp(1i*theta);
+a = exp(1i*2*pi(class_t)*rand(class_t))*z(randperm(n));
+b = a; 
+c = exp(1i*2*pi(class_t)*rand(class_t))*z(randperm(n));
+
+B0 = [diag(a);zeros(2,n,class_t)] + [zeros(1,n,class_t); diag(c); zeros(1,n,class_t)] + [zeros(2,n,class_t); diag(b)];
+B1 = [eye(n,class_t); zeros(2,n,class_t)];
+B2 = [zeros(1,n,class_t); eye(n,class_t); zeros(1,n,class_t)];
+B3 = [zeros(2,n,class_t); eye(n,class_t)];
 
 B = {B0,B1,B2,B3};
 
 nsol = n*(n+1)*(n+2)/6;
-lambda = zeros(nsol,3);
-X = zeros(n,nsol);
+lambda = zeros(nsol,3,class_t);
+X = zeros(n,nsol,class_t);
 ind_col = 0;
-z0 = zeros(n,1);
+z0 = zeros(n,1,class_t);
 for i = 1:n
     for j = i:n
         lm = -a(i);
