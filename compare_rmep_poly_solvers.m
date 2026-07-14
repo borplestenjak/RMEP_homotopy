@@ -11,7 +11,7 @@ Res3 = [];
 % Options for the homotopy_poly_rmep
 opts = [];
 opts.display = 1;  
-opts.maxruns = 4;
+opts.maxruns = 5;
 opts.maxangle = 2.5e-1;
 opts.maxstepsize = 2.5e-1;
 opts.maxinnersteps = 6; %

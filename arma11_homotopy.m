@@ -45,10 +45,11 @@ end
 
 if isfield(opts,'filter_res'),    filter_res   = opts.filter_res;    else,   filter_res = sqrt(eps(class_t));   end
 if ~isfield(opts,'maxruns'),     opts.maxruns = 1;         end 
-if ~isfield(opts,'maxstepsize'), opts.maxstepsize = 1e-1;  end 
-if ~isfield(opts,'maxangle'),    opts.maxangle = 1e-1;     end 
-if ~isfield(opts,'stepsize'),    opts.stepsize = 1e-12;    end 
 if ~isfield(opts,'display'),     opts.display = 1;         end 
+if ~isfield(opts,'abort_inf'),   opts.abort_inf = 2e-2;     end 
+if ~isfield(opts,'maxstepsize'), opts.maxstepsize = 2e-1;  end 
+if ~isfield(opts,'maxangle'),    opts.maxangle = 2e-1;     end 
+if ~isfield(opts,'stepsize'),    opts.stepsize = 1e-8;    end 
 
 y = y(:);
 if ~isa(y,class_t), y = numeric_t(y,class_t); end

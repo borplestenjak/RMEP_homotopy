@@ -25,7 +25,9 @@ R = Rall(rows_3,2:end); % submatrix with data for cubic RMEPs
 if plot1 
     set_deg = [3 4 5 6 7];
     set_maxn = [10 10 10 10 10];
-c    for j = 1:length(set_deg)
+    f1 = figure('Position',position);
+    Ax1(1) = axes(f1);
+    for j = 1:length(set_deg)
         deg = set_deg(j);
         rows = find(Rall(:,1)==deg);
         R = Rall(rows,2:end); % submatrix with data for cubic RMEPs
@@ -39,7 +41,7 @@ c    for j = 1:length(set_deg)
         hom_y = R(ind(hom_ind),10);
         mac_y = R(ind(mac_ind),16);
         set(gca,'ColorOrderIndex',j)
-        semilogy(hom_x,hom_y,'.-','MarkerSize',ms,'LineWidth',lw);
+        semilogy(hom_x,hom_y,'.-','MarkerSize',23,'LineWidth',lw);
         hold on
         set(gca,'ColorOrderIndex',j)
         semilogy(mac_x,mac_y,'--o','MarkerSize',6,'MarkerFaceColor','w','LineWidth',lw);
@@ -72,7 +74,7 @@ c    for j = 1:length(set_deg)
     delete(get(Ax1(3),'children'))
     % plot helper data, but invisible
     hold on
-    G1 = plot(nan, nan, 'k.-','MarkerSize',ms,'LineWidth',lw, 'Parent', Ax1(3),'Visible', 'on');
+    G1 = plot(nan, nan, 'k.-','MarkerSize',23,'LineWidth',lw, 'Parent', Ax1(3),'Visible', 'on');
     G2 = plot(nan, nan, 'k--o','MarkerSize',6,'MarkerFaceColor','w','LineWidth',lw, 'Parent', Ax1(3),'Visible', 'on');
     hold off
     % make second axes invisible

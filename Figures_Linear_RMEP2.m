@@ -10,8 +10,8 @@ plot1 = 0;
 plot1b = 0;
 plot2 = 0;
 plot2b = 0;
-plot3 = 1 ;
-plot4 = 0;
+plot3 = 0;
+plot4 = 1;
 plot5 = 0;
 
 %% ==================================================================
@@ -78,9 +78,9 @@ if plot1b
         hom_y = R(ind(hom_ind),10);
         mep_y = R(ind(mep_ind),13);
         mac_y = R(ind(mac_ind),16);
-        semilogy(hom_x,hom_y,'.-','Color', glavne_barve(j,:),'MarkerSize',ms_dot,'LineWidth',lw);
-        hold on
         semilogy(mac_x,mac_y,'--o','Color', glavne_barve(j,:),'MarkerSize',ms,'MarkerFaceColor','w','LineWidth',lw);
+        hold on
+        semilogy(hom_x,hom_y,'.-','Color', glavne_barve(j,:),'MarkerSize',ms_dot,'LineWidth',lw);
         semilogy(mep_x,mep_y,':pentagram','Color', glavne_barve(j,:),'MarkerSize',ms,'MarkerFaceColor','w','LineWidth',lw);
         hold on
         ylabel('time [s]','FontSize',15)
@@ -334,7 +334,7 @@ if plot4
     ax = gca;
     ax.FontSize=15;    
     % axis tight
-    axis([1 17 30 60])
+    axis([1 17 -2 60])
     xticks(2:2:16)
     yyaxis right
     ind1 = find(R(:,1)==2);

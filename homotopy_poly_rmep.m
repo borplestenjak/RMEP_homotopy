@@ -81,7 +81,7 @@ if isfield(opts,'abort_inf'),     abort_inf = opts.abort_inf;         else,  abo
 if isfield(opts,'maxangle'),      maxangle = opts.maxangle;           else,  maxangle = 1e-1;            end
 if isfield(opts,'repeat_opt'),    repeat_opt = opts.repeat_opt;       else,  repeat_opt = 'all';         end
 if isfield(opts,'filter_res'),    filter_res = opts.filter_res;       else,  filter_res = 1e2*sqrt(eps(class_t));  end
-if isfield(opts,'goal_res'),      goal_eps = opts.goal_eps;           else,  goal_eps = 1e3*eps(class_t); end 
+if isfield(opts,'goal_eps'),      goal_eps = opts.goal_eps;           else,  goal_eps = 1e3*eps(class_t); end 
 if isfield(opts,'gamma'),         gamma = opts.gamma;                 else,  gamma = exp(2*pi(class_t)*1i*rand(class_t)); end 
 
 linearRMEP = isempty(suppA);
@@ -424,7 +424,7 @@ while run<maxruns && length(find(converged==0))>0
         % we tighten criteria for the repeated curves
         stepsize = max(stepsize/100,minstepsize);
         maxstepsize = maxstepsize/3;
-        innertol = max(innertol/sqrt(10),goal_eps);
+        innertol = max(innertol/sqrt(10),finaltol);
         maxinnersteps = max(maxinnersteps-1,4);
         maxangle = maxangle/3;
         maxsteps = 3*maxsteps;
