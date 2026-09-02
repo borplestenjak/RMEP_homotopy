@@ -35,8 +35,9 @@ end
 
 fprintf('MacaulayLab\n---------------------\n')
 Amep = mepstruct(A,suppA);
+t3start = tic;
 [solMAC,details] = macaulaylab(Amep,posdim=true);
-t3 = sum(details.time)
+t3 = toc(t3start)
 lambdaM = solMAC.num;
 indM = find(vecnorm(imag(lambdaM),Inf,2)<1e-8);
 nsolutions3 = [size(lambdaM,1) length(indM)]

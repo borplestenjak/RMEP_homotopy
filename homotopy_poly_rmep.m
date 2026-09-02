@@ -127,18 +127,25 @@ deg = max(sum(suppA,2)); % degree of the RMEP
 suppA_h = [deg-sum(suppA,2) suppA];
 suppB_h = [deg-sum(suppB,2) suppB];
 
-for k=1:numel(B) % introduce random scalar gamma
+tmpA = [];
+for k=1:numel(A)
+    tmpA = [tmpA; norm(A{k},'fro')];
+end
+normA = norm(tmpA);
+tmpB = [];
+for k=1:numel(B)
+    tmpB = [tmpB; norm(B{k},'fro')];
+end
+normB = norm(tmpB);
+
+gamma = normA/normB*gamma;
+
+for k=1:numel(B) % introduce random scalar gamma and make B of the same size as A
     B{k} = gamma*B{k};
 end
 
-tmpAB = [];
-for k=1:numel(A)
-    tmpAB = [tmpAB; norm(A{k})];
-end
-for k=1:numel(B)
-    tmpAB = [tmpAB; norm(B{k})];
-end
-normAB = norm(tmpAB);
+normAB = sqrt(2)*normA;
+
 rec_cond_all = zeros(neig,5); % for residuals and condition numbers
 
 while run<maxruns && length(find(converged==0))>0

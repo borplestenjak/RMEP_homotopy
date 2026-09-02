@@ -1,14 +1,13 @@
-function [mat,supp] = h2sisored3(an,bn,r)
-    %H2SISORED3   H2-norm continuous-time model order reduction problem.
-    %   mat = H2SISORED3(an,bn,r) creates the coefficient matrices of the
+function [mat,supp] = h2sisored3_discrete(an,bn,r)
+    %H2SISORED3_DISCRETE   H2-norm dicrete-time model order reduction problem.
+    %   mat = H2SISORED3_DISCRETE(an,bn,r) creates the coefficient matrices of the
     %   multiparameter eigenvalue problem that solves the H2-norm model 
-    %   order reduction problem of an n-th order continuous-time model to an 
-    %   r-th order model. It uses the so-called "third (Walsh) approach" 
-    %   from [1]. The n-th order model is given by its transfer function 
-    %   b(1)*s^{n-1} + 
+    %   order reduction problem of an n-th order dicrete-time model to an r-th order 
+    %   model. It uses the so-called "third (Walsh) approach" from [1]. The 
+    %   n-th order model is given by its transfer function b(1)*s^{n-1} + 
     %   b(1)*s^{n-2} + ... + b(n) / s^n + a(1)*s^{n-1} + ... + a(n).
     %
-    %   [mat,supp] = H2SISORED3(...) also gives the support of the 
+    %   [mat,supp] = H2SISORED3_DISCRETE(...) also gives the support of the 
     %   coefficient matrices.
         
     % Copyright (c) 2024 - Christof Vermeersch
@@ -40,11 +39,9 @@ function [mat,supp] = h2sisored3(an,bn,r)
     for i = 1:r
         Tb(i,:) = circshift(t,i-1);
     end
-    t = [1 ar' zeros(1,n-1)];
-    % correction because we use a_tilda(-s)^2 here
-    for j = 2:2:r+1
-        t(j) = -t(j);
-    end
+    % t = [1 ar' zeros(1,n-1)];
+    % correction for the discrete model
+    t = [ar(end:-1:1)' 1 zeros(1,n-1)];
     Tc = sym('Tc',[n,n+r]);
     for i = 1:n
         Tc(i,:) = circshift(t,i-1);

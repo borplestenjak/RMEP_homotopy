@@ -21,8 +21,9 @@ points = real(cand(ind,:))
 
 fprintf('MacaulayLab\n---------------------\n')
 Amep = mepstruct(A,suppA);
+t2start = tic;
 [solMAC,details] = macaulaylab(Amep,posdim=true);
-t2 = sum(details.time)
+t2 = toc(t2start)
 lambdaM = solMAC.num;
 indM = find(vecnorm(imag(lambdaM),Inf,2)<1e-8);
 nsolutions2 = [size(lambdaM,1) length(indM)]
