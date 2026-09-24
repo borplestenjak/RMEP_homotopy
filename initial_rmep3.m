@@ -21,11 +21,11 @@ if nargin<2
     class_t = 'double';
 end
 
-theta = 2*pi(class_t)*(0:n-1)'/n;
+theta = 2*numeric_t(pi,class_t)*(0:n-1)'/n;
 z = exp(1i*theta);
-a = exp(1i*2*pi(class_t)*rand(class_t))*z(randperm(n));
+a = exp(1i*2*numeric_t(pi,class_t)*rand(class_t))*z(randperm(n));
 b = a; 
-c = exp(1i*2*pi(class_t)*rand(class_t))*z(randperm(n));
+c = exp(1i*2*numeric_t(pi,class_t)*rand(class_t))*z(randperm(n));
 
 B0 = [diag(a);zeros(2,n,class_t)] + [zeros(1,n,class_t); diag(c); zeros(1,n,class_t)] + [zeros(2,n,class_t); diag(b)];
 B1 = [eye(n,class_t); zeros(2,n,class_t)];

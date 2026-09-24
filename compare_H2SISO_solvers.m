@@ -9,11 +9,12 @@ Res3 = [];
 % Options for the homotopy_poly_rmep
 opts = [];
 opts.display = 1;
-opts.maxruns = 3;
-opts.abort_inf = 1e-4;  
-opts.maxstepsize = 2e-1;
+opts.maxruns = 2;
+opts.abort_inf = 1e-5;  
+opts.maxstepsize = 1e-1;
 opts.maxangle = 1e-1;   
-opts.stepsize = 1e-8;   
+opts.stepsize = 1e-5;
+opts.filter_res = 1e-5;
 
 delta = 1e-5;
 % Do not change the part below

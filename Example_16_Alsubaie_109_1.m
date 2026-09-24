@@ -24,12 +24,12 @@ opts.stepsize = 1e-8;
 delta = 1e-5;
 
 tstart = tic;
-[points,X] = poly_rect_multipareig_homotopy(mat,supp,opts);
+[points,X2] = poly_rect_multipareig_homotopy(mat,supp,opts);
 points = points; 
 tTrace = toc(tstart)
 indh = find(vecnorm(imag(points),Inf,2) < delta);
 points = real(points(indh, :))
-X = X(:,indh);
+X = X2(:,indh);
 for j=1:length(indh)
     X(:,j) = real(X(:,j)./X(1,j));
 end
@@ -42,12 +42,16 @@ normG = norm(G_orig);
 err = [];
 ar = [];
 br = [];
+ort = [];
 for j=1:length(indh)
     ar(j,:) = real([1 points(j,end:-1:1)]);
     br(j,:) = real(X(2:red_order+1,j).');
     G_red = tf(br(j,:),ar(j,:));
     warning off
-    err(j,1) = norm(G_orig-G_red,2)/normG;
+    normRed = norm(G_red,2);
+    normDif = norm(G_orig-G_red,2);
+    err(j,1) = normDif/normG;
+    ort(j,1) = normDif^2-(normG^2-normRed^2);
     warning on
 end
 
@@ -55,7 +59,9 @@ end
 ind = find(tmperr<Inf);
 sol_a = ar(ord(ind),:)
 sol_b = br(ord(ind),:)
-sol_err = err(ord(ind))
+sol_err = err(ord(ind));
+sol_ort = ort(ord(ind));
+sol_err_ort = [sol_err sol_ort]
 poles = [];
 for j=1:length(ind)
     poles(j,:) = roots(sol_a(j,:));

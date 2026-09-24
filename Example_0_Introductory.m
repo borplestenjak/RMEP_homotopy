@@ -79,7 +79,7 @@ legend('\lambda^{(1)}_1','\lambda^{(2)}_1','\lambda^{(3)}_1','\lambda^{(1)}_2','
 ax = gca;
 ax.FontSize=20;
 xlabel('t','FontSize',20)
-ylabel('Real(\lambda)','FontSize',fs)
+ylabel('Real(\lambda)','FontSize',20)
 
 %% Figure with paths from the complex homotopy
 

@@ -21,15 +21,15 @@ if nargin<3
     class_t = 'double';
 end
 
-theta = 2*pi(class_t)*(0:n-1)'/n;
+theta = 2*numeric_t(pi,class_t)*(0:n-1)'/n;
 z = exp(1i*theta);
-a = exp(1i*2*pi(class_t)*rand(class_t))*z(randperm(n));
+a = exp(1i*2*numeric_t(pi,class_t)*rand(class_t))*z(randperm(n));
 b = a; 
 
 B = cell(1,k+1);
 B{1} = [diag(a);zeros(k-1,n,class_t)] + [zeros(k-1,n,class_t); diag(b)];
 for j = 2:k-1
-    d = exp(1i*2*pi(class_t)*rand(class_t))*z(randperm(n));
+    d = exp(1i*2*numeric_t(pi,class_t)*rand(class_t))*z(randperm(n));
     B{1} = B{1} + [zeros(j-1,n,class_t); diag(d); zeros(k-j,n,class_t)];
 end
 

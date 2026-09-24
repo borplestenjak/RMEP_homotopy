@@ -62,6 +62,11 @@ ind = find(tmperr<Inf);
 sol_a = ar(ord(ind),:)
 sol_b = br(ord(ind),:)
 sol_err = err(ord(ind))
+poles = [];
+for j=1:length(ind)
+    poles(j,:) = roots(sol_a(j,:));
+end
+poles
 
 
 

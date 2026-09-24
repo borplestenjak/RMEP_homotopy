@@ -1,5 +1,5 @@
 % Continuous-time H2 model reduction example
-% from Alsubaie's Phd, page 109, example F1
+% from Alsubaie's Phd, page 109, example F2
 % n = 5, r = 2 and r = 3
 
 b = [-1.2805 -6.2266 -12.8095 -9.3373];
@@ -42,12 +42,16 @@ for red_order=2:3
     err = [];
     ar = [];
     br = [];
+    ort = [];
     for j=1:length(indh)
         ar(j,:) = real([1 points2(j,end:-1:1)]);
         br(j,:) = real(X2(2:red_order+1,j).');
         G_red = tf(br(j,:),ar(j,:));
         warning off
-        err(j,1) = norm(G_orig-G_red,2)/normG;
+        normRed = norm(G_red,2);
+        normDif = norm(G_orig-G_red,2);
+        err(j,1) = normDif/normG;
+        ort(j,1) = normDif^2-(normG^2-normRed^2);
         warning on
     end
     
@@ -55,7 +59,9 @@ for red_order=2:3
     ind = find(tmperr<Inf);
     sol_a = ar(ord(ind),:)
     sol_b = br(ord(ind),:)
-    sol_err = err(ord(ind))
+    sol_err = err(ord(ind));
+    sol_ort = ort(ord(ind));
+    sol_err_ort = [sol_err sol_ort]
     poles = [];
     for j=1:length(ind)
         poles(j,:) = roots(sol_a(j,:));

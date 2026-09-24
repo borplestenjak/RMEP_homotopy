@@ -82,7 +82,7 @@ if isfield(opts,'maxangle'),      maxangle = opts.maxangle;           else,  max
 if isfield(opts,'repeat_opt'),    repeat_opt = opts.repeat_opt;       else,  repeat_opt = 'all';         end
 if isfield(opts,'filter_res'),    filter_res = opts.filter_res;       else,  filter_res = 1e2*sqrt(eps(class_t));  end
 if isfield(opts,'goal_eps'),      goal_eps = opts.goal_eps;           else,  goal_eps = 1e3*eps(class_t); end 
-if isfield(opts,'gamma'),         gamma = opts.gamma;                 else,  gamma = exp(2*pi(class_t)*1i*rand(class_t)); end 
+if isfield(opts,'gamma'),         gamma = opts.gamma;                 else,  gamma = exp(2*pi*1i*rand(class_t)); end 
 
 linearRMEP = isempty(suppA);
 if linearRMEP 
