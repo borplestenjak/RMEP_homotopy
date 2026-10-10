@@ -1,7 +1,12 @@
 % Example four disc
-% we compute H2 optimal model reducction 
-% We get the same matrices as in the paper
-% by Sibren Lagauw, Oscar Mauricio Agudelo, and Bart De Moor
+% we compute H2 optimal model reduction 
+% for a dicrete-time model of order 6 to order 2
+
+% We get the same matrices and results as in the paper
+% 
+% S. Lagauw, O. M. Agudelo, and B. De Moor. Globally optimal SISO H2-norm
+% model reduction using Walsh's theorem. IEEE Control Syst. Lett., 
+% 7:1670–1675, 2023
 
 b = [ 0.0448; 0.2368; 0.0013; 0.0211; 0.225; 0.0219 ];
 a = [ -1.2024; 2.3675; -2.0039; 2.2337; -1.042; 0.8513];

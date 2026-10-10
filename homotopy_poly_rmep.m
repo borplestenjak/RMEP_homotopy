@@ -55,6 +55,9 @@ function [lambda,X,tcell,ycell,stat] = homotopy_poly_rmep(A,suppA,B,suppB,Lambda
 %         last k+1 elements represent eigenvalue 
 %   - stat: several statistics
 
+% See: B. Plestenjak, C. Vermeersch, Homotopy for Rectangular Multiparameter
+% Eigenvalue Problems, arXiv, 2026
+
 % Bor Plestenjak, 2026
 
 % Validate number of input parameters

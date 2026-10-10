@@ -52,7 +52,6 @@ for m = 2:maxm
             options.showrank = 1;
             tstart = tic;
             points2 = rect_quad_multipareig(mat, options);
-            points2 = points2(:,m:-1:1); % supp ordering is different in MultiParEig
             t2 = toc(tstart)
             timemultipareig(m-1,n) = t2;
             ind = find(vecnorm(imag(points2),Inf,2) < delta);

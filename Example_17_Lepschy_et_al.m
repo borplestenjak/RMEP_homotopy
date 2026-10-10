@@ -1,8 +1,10 @@
 % Model reduction example FOM-2 from 
 % Gugercin, Antoulas, Beaties
 % n = 7, r = 3
-
-
+%
+% S. Gugercin, A.C. Antoulas, C. Beattie: H2 model reduction for large-scale 
+% linear dynamical systems, SIAM. J. Matrix Anal. Appl., 30(2), 609–638, 2008.
+ 
 b = [2 11.5 57.75 178.625 345.5 323.625 94.5];
 a = [10 46 130 239 280 194 60];
 

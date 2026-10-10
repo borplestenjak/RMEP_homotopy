@@ -64,7 +64,6 @@ for run = 1:meja
         t2 = toc(tstart)
         Res2.full_time(run) = t2;
         if length(points2)>0
-            % points2 = points2(:,m:-1:1); % supp ordering is different in MultiParEig
             indh = find(vecnorm(imag(points2),Inf,2) < delta);
             points2 = real(points2(indh, :))
             nsol2 = length(points2)

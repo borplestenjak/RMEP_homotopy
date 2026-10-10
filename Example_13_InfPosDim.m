@@ -46,24 +46,17 @@ catch ME
     fprintf('Error in macaulaylab: %s \n',ME.message)   
 end
 
-% Homotopy finds three eigenvalues, the isolated one and two random ones,
+% Homotopy finds four true eigenvalues and additional 6 infinite ones,
 % if we run the homotopy again with a different initial problem, the
-% solutions have only the true eigenvalue in common. 
+% solutions have only the true eigenvalues in common. 
 opts = [];
 opts.display = 3;
 opts.maxruns = 1;
 fprintf('\nHomotopy 1 \n----------\n')
 [lambda2,X2,lambdaT2,XT2] = rect_multipareig_homotopy(A,opts);
+lambda2
+lambdaT2
 fprintf('\nHomotopy 2 \n----------\n')
 [lambda3,X3,lambdaT3,XT3] = rect_multipareig_homotopy(A,opts);
-
-% We compute residuals, geometric multiplicities and condition numbers of the three
-% eigenvalues returned by the homotopy method. Al eigenvalues are 
-% geometrically simple, but two are highly ill-conditioned, which is a sign 
-% that these are not true eigenvalues
-res_gm_cond2 = []; 
-for j = 1:size(lambdaT2,1)
-    [gm,s] = condeig_rmep(A,[],lambdaT2(j,:).',false);
-    res_gm_cond2(j,:) = [gm s];
-end
-res_gm_cond_lambda2 = [res_gm_cond2 lambdaT2]
+lambda3
+lambdaT3

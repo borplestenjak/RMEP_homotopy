@@ -1,7 +1,7 @@
-% Quadratic 2-parameter RMEP with positive-dimensional solution in infinity
+% Quadratic 2-parameter RMEP with positive-dimensional solution at infinity
 % 
 % We take 3x2 quadratic 2-parameter RMEP of the form 
-% such that for all the homogoeneous version is singular for all nonzero
+% such that the homogoeneous version is singular for all nonzero
 % (0,a,b) such that a^2+ab+b^2=0.
 %
 % The problem has 10 finite eigenvalues (a generic QRMEP of this size has 
@@ -26,12 +26,12 @@ A5 = [A3(:,1) rand(3,1)];
 A = {A0,A1,A2,A3,A4,A5};
 suppA = [0 0; 1 0; 0 1; 2 0; 1 1;0 2];
 
-% Multipareig finds 6 true eigenvalues
+% Multipareig finds 10 true eigenvalues
 fprintf('\nMultiParEig\n-----------\n')
 lambda = rect_quad_multipareig(A)
 
 % In two runs with the initial QRMEP of form B0+lambda1^2*B1+lambda2^2*B2
-% we get 12 solutions that include 6 true eigenvalues
+% we get 12 solutions that include 10 true eigenvalues
 opts = [];
 opts.display = 2;
 

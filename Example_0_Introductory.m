@@ -1,21 +1,21 @@
 % Introductory example with 3 x 2 two-parameter linear RMEP and simple real
 % eigenvalues. If we start with a real problem, then real homotopy paths
 % get stuck at bifurcation points. This shows why we should use complex
-% paths even if the proble is real and has real eigenvalues.
+% paths even if the problem is real and has real eigenvalues.
 
 % Bor Plestenjak 2026
 
-A0 = [-1 1; 
-      2 -2; 
-      3 -1];
+A0 = [-1  1; 
+       2 -2; 
+       3 -1];
 
-A1 = [1 2; 
+A1 = [ 1 2; 
       -2 3; 
-      3 3];
+       3 3];
 
-A2 = [1 1;
-      2 -2;
-      -3 4];
+A2 = [ 1  1;
+       2 -2;
+      -3  4];
 
 % Multipareig 
 fprintf('\nMultiParEig\n-----------\n')
@@ -35,7 +35,7 @@ end
 % Real homotopy 
 fprintf('\nHomotopy from an initial real problem and real paths \n----------\n')
 B0A = [2 0; -1 1; 0 2];
-B1 =  [3 0; 0 1; 0 0];
+B1 =  [1 0; 0 1; 0 0];
 B2 =  [0 0; 1 0; 0 1];
 BA = {B0A,B1,B2};
 

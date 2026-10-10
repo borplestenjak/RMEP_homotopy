@@ -55,15 +55,6 @@ suppB2 = [0 0;2 0;0 2];
 [lambdaT2, XT2] = homotopy_poly_rmep(A,suppA,B2,suppB2,Lambda20,X20,opts);
 lambda2 = lambdaT2(:,[2 3])./lambdaT2(:,1)
 
-% If we use the initial QRMEP of form B0+lambda1^2*B1+lambda2*B2
-% we get only 6 true eigenvalues
-fprintf('\nHomotopy 3 using initial RMEP B0 + lambda1^2*B1 + lambda2*B2 \n------------------------------------------------------------\n')
-rng(4)
-[B3,Lambda30,X30] = initial_poly_rmep(2,2,[2 1]);
-suppB3 = [0 0;2 0;0 1];
-[lambdaT3, XT3] = homotopy_poly_rmep(A,suppA,B3,suppB3,Lambda30,X30,opts);
-lambda3 = lambdaT3(:,[2 3])./lambdaT3(:,1)
-
 % We compute residuals, geometric multipicites and condition numbers for 12
 % eigenvalues obtained in the second run with the initial QRMEP of 
 % form B0+lambda1^2*B1+lambda2^2*B2
@@ -74,3 +65,13 @@ for j = 1:length(lambda2)
     res_gm_cond2(j,:) = [res gm s];
 end
 res_gm_cond_lambda2 = [res_gm_cond2 lambda2]
+
+% If we use the initial QRMEP of form B0+lambda1^2*B1+lambda2*B2
+% we get only 6 true eigenvalues
+fprintf('\nHomotopy 3 using initial RMEP B0 + lambda1^2*B1 + lambda2*B2 \n------------------------------------------------------------\n')
+rng(4)
+[B3,Lambda30,X30] = initial_poly_rmep(2,2,[2 1]);
+suppB3 = [0 0;2 0;0 1];
+[lambdaT3, XT3] = homotopy_poly_rmep(A,suppA,B3,suppB3,Lambda30,X30,opts);
+lambda3 = lambdaT3(:,[2 3])./lambdaT3(:,1)
+

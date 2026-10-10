@@ -2,7 +2,7 @@
 
 addpath examples
 
-N = 25;
+N = 20;
 rng(1);
 a = randn(N,1);
 b = randn(N,1);
@@ -23,7 +23,6 @@ fprintf('rect_quad from MultiParEig\n---------------------\n')
 tic
 [mu,X] = rect_quad_multipareig(A); 
 t2 = toc
-mu = mu(:,[2 1]); % switch because of different ordering of monomials 
 realind2 = find(vecnorm(imag(mu),Inf,2)<1e-8);
 nsolutions = [size(mu,1) length(realind2)]
 real_solutions2 = real(mu(realind2,:))

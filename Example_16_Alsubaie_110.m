@@ -1,6 +1,10 @@
 % Continuous-time H2 model reduction example
 % from Alsubaie's Phd, page 110
 % n = 5, r = 3
+%
+% Alsubaie FF. H2 optimal model reduction for linear dynamic systems and the 
+% solution of multiparameter matrix pencil problems. PhD., Imperial College 
+% London, Department of Electrical and Electronic Engineering; 2019.
 
 SA = [-12.9672  0.2462  7.6147 -18.1222  -8.1217;
        -0.6374 -2.8920  2.3592 -13.9644  -9.8803;

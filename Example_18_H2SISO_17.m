@@ -1,22 +1,22 @@
-% This is model reduction Example 3 from
-% Lagauw, S., Agudelo, O.M., De Moor, B.: Globally optimal SISO H2-norm model
-% reduction using [Walsh's theorem. IEEE Control Syst. Lett. 7, 1670–1675 (2023)
+% This is model reduction Example 3 from Lagauw, Agudelo, De Moor
 %
 % n = 17 and m = 4
+%
+% S. Lagauw, O. M. Agudelo, and B. De Moor. Globally optimal SISO H2-norm
+% model reduction using Walsh's theorem. IEEE Control Syst. Lett., 
+% 7:1670–1675, 2023
     
 load correctedh2example.mat
 addpath examples
 
 sys_ss = ss(A,B,C,D);
-sys_tf = tf(sys_ss);
-sb = sys_tf.Numerator{1};
-sa = sys_tf.Denominator{1};
+[sb,sa] = ss2tf(A,B,C,D); % transformation to transfer form
 
 sb = sb(2:end);
 n = length(sa)-1;
 pden = n:-1:0;
 pnum = length(sb)-1:-1:0;
-gamma = 16; % scaling of coefficient matrices
+gamma = 16; % scaling of coefficient matrices to reduce huge differences in size of the coefficients
 sa2 = sa .* gamma.^pden;
 sb2 = sb .* gamma.^pnum;
 
@@ -25,7 +25,8 @@ scale = max(abs(sa2(1)))
 sa2 = sa2/scale;
 sb2 = sb2/scale;
 
-red_order = 4 % order of the reduced model (use 2,3, or 4)
+red_order = 2 % order of the reduced model (use 2,3, or 4)
+
 sa2 = sa2(2:end);
 sa2 = sa2(:);
 sb2 = sb2(:);
